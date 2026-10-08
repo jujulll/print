@@ -103,7 +103,7 @@
             gap: 24px;
         }
 
-        max-width: 768px {
+        @media (max-width: 768px) {
             .tab-content.active {
                 grid-template-columns: 1fr;
             }
@@ -157,9 +157,7 @@
 
         .hint {
             font-size: 11px;
-
-
-color: var(--text-muted);
+            color: var(--text-muted);
             margin-top: 4px;
         }
 
@@ -308,10 +306,89 @@ color: var(--text-muted);
         <div class="panel-left">
             <div>
                 <div class="section-title">Печатный лист</div>
-                <div class="form
+                <div class="form-group">
+                    <label>Стандартный формат</label>
+                    <select id="printPreset" onchange="selectPrintPreset()">
+                        <option value="custom">Свой размер</option>
+                        <option value="SRA3">SRA3 (450 × 320 мм)</option>
+                        <option value="A3">A3 (420 × 297 мм)</option>
+                        <option value="A4">A4 (297 × 210 мм)</option>
+                        <option value="A2">A2 (594 × 420 мм)</option>
+                    </select>
+                </div>
+                <div class="input-row">
+                    <div class="form-group">
+                        <label>Ширина (мм)</label>
+                        <input type="number" id="printWidth" value="450" oninput="calculate()">
+                    </div>
+                    <div class="form-group">
+                        <label>Высота (мм)</label>
+                        <input type="number" id="printHeight" value="320" oninput="calculate()">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Отступы от краев (мм)</label>
+                    <input type="number" id="printMargin" value="5" oninput="calculate()">
+                    <div class="hint">Вычитается с каждой стороны листа</div>
+                </div>
+            </div>
 
+            <hr style="border: none; border-top: 1px solid var(--border);">
 
-<canvas id="layoutCanvas" width="300" height="200"></canvas>
+            <div>
+                <div class="section-title">Готовое изделие и тираж</div>
+                <div class="form-group">
+                    <label>Стандартный формат</label>
+                    <select id="prodPreset" onchange="selectProdPreset()">
+                        <option value="custom">Свой размер</option>
+                        <option value="A4">A4 (297 × 210 мм)</option>
+                        <option value="A5">A5 (210 × 148 мм)</option>
+                        <option value="A6">A6 (148 × 105 мм)</option>
+                        <option value="Card">Визитка (90 × 50 мм)</option>
+                    </select>
+                </div>
+                <div class="input-row">
+                    <div class="form-group">
+                        <label>Ширина изделия (мм)</label>
+                        <input type="number" id="prodWidth" value="90" oninput="calculate()">
+                    </div>
+                    <div class="form-group">
+                        <label>Высота изделия (мм)</label>
+                        <input type="number" id="prodHeight" value="50" oninput="calculate()">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Тираж (шт.)</label>
+                    <input type="number" id="circulation" value="1000" oninput="calculate()">
+                </div>
+            </div>
+        </div>
+
+        <!-- Правая колонка: результаты и визуализация -->
+        <div class="panel-right">
+            <div class="section-title">Результаты расчета</div>
+            <div class="results-box">
+                <div class="result-item">
+                    <span>Полезная область листа:</span>
+                    <span id="resField" class="result-value">-</span>
+                </div>
+                <div class="result-item">
+                    <span>Штук на одном листе:</span>
+                    <span id="resPerSheet" class="result-value">-</span>
+                </div>
+                <div class="result-item">
+                    <span>Ориентация изделий:</span>
+                    <span id="resOrientation" class="result-value">-</span>
+                </div>
+                <div class="result-item" style="border-top: 1px solid var(--border); margin-top: 10px; padding-top: 10px;">
+                    <span>Требуется печатных листов:</span>
+                    <span id="resTotalSheets" class="result-value" style="font-size: 16px;">-</span>
+                </div>
+            </div>
+
+            <div class="section-title" style="margin-bottom: 6px;">Схема раскладки</div>
+            <div class="preview-container">
+                <canvas id="layoutCanvas" width="300" height="200"></canvas>
             </div>
         </div>
     </div>
@@ -399,279 +476,7 @@ color: var(--text-muted);
 
             <!-- Люверсы -->
             <div class="postpress-grid postpress-row">
-                <span>Люв
-
-
--group">
-                    <label>Стандартный формат</label>
-                    <select id="printPreset" onchange="selectPrintPreset()">
-                        <option value="custom">Свой размер</option>
-                        <option value="SRA3">SRA3 (450 × 320 мм)</option>
-                        <option value="A3">A3 (420 × 297 мм)</option>
-                        <option value="A4">A4 (297 × 210 мм)</option>
-                        <option value="A2">A2 (594 × 420 мм)</option>
-                    </select>
-                </div>
-                <div class="input-row">
-                    <div class="form-group">
-                        <label>Ширина (мм)</label>
-                        <input type="number" id="printWidth" value="450" oninput="calculate()">
-                    </div>
-                    <div class="form-group">
-                        <label>Высота (мм)</label>
-                        <input type="number" id="printHeight" value="320" oninput="calculate()">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Отступы от краев (мм)</label>
-                    <input type="number" id="printMargin" value="5" oninput="calculate()">
-                    <div class="hint">Вычитается с каждой стороны листа</div>
-                </div>
-            </div>
-
-            <hr style="border: none; border-top: 1px solid var(--border);">
-
-            <div>
-                <div class="section-title">Готовое изделие и тираж</div>
-                <div class="form-group">
-                    <label>Стандартный формат</label>
-                    <select id="prodPreset" onchange="selectProdPreset()">
-                        <option value="custom">Свой размер</option>
-                        <option value="A4">A4 (297 × 210 мм)</option>
-                        <option value="A5">A5 (210 × 148 мм)</option>
-                        <option value="A6">A6 (148 × 105 мм)</option>
-                        <option value="Card">Визитка (90 × 50 мм)</option>
-                    </select>
-                </div>
-                <div class="input-row">
-                    <div class="form-group">
-                        <label>Ширина изделия (мм)</label>
-                        <input type="number" id="prodWidth" value="90" oninput="calculate()">
-                    </div>
-                    <div class="form-group">
-                        <label>Высота изделия (мм)</label>
-                        <input type="number" id="prodHeight" value="50" oninput="calculate()">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Тираж (шт.)</label>
-                    <input type="number" id="circulation" value="1000" oninput="calculate()">
-                </div>
-            </div>
-        </div>
-
-        <!-- Правая колонка: результаты и визуализация -->
-        <div class="panel-right">
-            <div class="section-title">Результаты расчета</div>
-            <div class="results-box">
-                <div class="result-item">
-                    <span>Полезная область листа:</span>
-                    <span id="resField" class="result-value">-</span>
-                </div>
-                <div class="result-item">
-                    <span>Штук на одном листе:</span>
-                    <span id="resPerSheet" class="result-value">-</span>
-                </div>
-                <div class="result-item">
-                    <span>Ориентация изделий:</span>
-                    <span id="resOrientation" class="result-value">-</span>
-                </div>
-                <div class="result-item" style="border-top: 1px solid var(--border); margin-top: 10px; padding-top: 10px;">
-                    <span>Требуется печатных листов:</span>
-                    <span id="resTotalSheets" class="result-value" style="font-size: 16px;">-</span>
-                </div>
-            </div>
-
-            <div class="section-title" style="margin-bottom: 6px;">Схема раскладки</div>
-            <div class="preview-container">
-
-
-<div class="input-row">
-                <div class="form-group" style="margin-bottom: 0;">
-                    <label>Количество переплетов</label>
-                    <input type="number" id="bindQty" value="0" oninput="calculatePostpress()">
-                </div>
-                <div class="form-group" style="margin-bottom: 0; display: flex; align-items: flex-end;">
-                    <div style="width: 100%; padding: 10px 12px; background: #fff; border: 1px solid var(--border); border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
-                        <span style="font-size: 13px; color: var(--text-muted);">Стоимость переплета:</span>
-                        <span id="bindSum" class="result-value">0.00 ₽</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Общий итог постпресса -->
-        <div class="total-banner">
-            <span>Итого по постпрессу:</span>
-            <span id="postpressTotalSum">0.00 ₽</span>
-        </div>
-    </div>
-
-    <!-- Вкладка: Цифровая печать -->
-    <div id="digitalTab" class="tab-content">
-        <div class="sub-section">
-            <div class="section-title">Расчет цифровой печати (формат А3)</div>
-            
-            <div class="form-group">
-                <label>Материал / Бумага</label>
-                <select id="digPaper" onchange="calculateDigital()">
-                    <option value="paper_80">Бумага ВХИ 80г</option>
-                    <option value="paper_90_100">Бумага ВХИ 90-100г</option>
-                    <option value="paper_120">Бумага ВХИ 120г / Мелованная 130г</option>
-                    <option value="paper_160">Бумага ВХИ 160г / Мелованная 150г</option>
-                    <option value="paper_200">Бумага ВХИ 200г / Мелованная 170г</option>
-                    <option value="paper_280_300">Бумага ВХИ 280-300г / Мелованная 300г</option>
-                    <option value="designer_texture">Бумага дизайнерская фактурная «Лен», «Ривз»</option>
-                    <option value="designer_lux">Дизайнерская бумага («золото», «серебро», Majestic, PERL)</option>
-                    <option value="sticker_raflatac">Бумага самоклеящаяся Raflatac</option>
-                    <option value="film_mastac">Пленка самоклеящаяся МасТас</option>
-                    <option value="env_c4">Конверт C4 229x324мм 80г белый</option>
-                    <option value="env_c5">Конверт C5 162x229мм 80г белый</option>
-                    <option value="env_euro">Конверт евро 110x220мм 80г белый</option>
-                </select>
-            </div>
-
-            <div class="input-row">
-                <div class="form-group">
-                    <label>Количество печатных листов</label>
-                    <input type="number" id="digQty" value="10" min="1" oninput="calculateDigital()">
-                </div>
-                <div class="form-group">
-                    <label>Количество резов на 1 лист</label>
-                    <input type="number" id="digCuts" value="4" min="0" oninput="calculateDigital()">
-                    <div class="hint">Из расчёта формулы: ROUNDUP(листы/50)*резы*8.5</div>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>Печать по второй стороне</label>
-                <div class="radio-group">
-                    <label class="radio-label">
-                        <input type="radio" name="digBack" value="none" checked onchange="calculateDigital()"> Без второй стороны (1+0)
-                    </label>
-                    <label class="radio-label">
-                        <input type="radio" name="digBack" value="color" onchange="calculateDigital()"> Полноцветная по второй стороне (0+4)
-                    </label>
-                    <label class="radio-label">
-                        <input type="radio" name="digBack" value="bw" onchange="calculateDigital()"> Черно-белая по второй стороне (0+1)
-                    </label>
-                </div>
-            </div>
-        </div>
-
-        <!-- Результа
-
-
-ты цифровой печати -->
-        <div class="results-box" style="background: #f8fafc; padding: 20px;">
-            <div class="result-item">
-                <span>Цена печати за 1 лист (с обеими сторонами):</span>
-                <span id="digTotalPerSheet" class="result-value">0.00 ₽</span>
-            </div>
-            <div class="result-item">
-                <span>Стоимость бумаги/печати тиража:</span>
-                <span id="digPrintSum" class="result-value">0.00 ₽</span>
-            </div>
-            <div class="result-item">
-                <span>Стоимость резки:</span>
-                <span id="digCuttingSum" class="result-value">0.00 ₽</span>
-            </div>
-            <div class="result-item" style="border-top: 1px solid var(--border); margin-top: 12px; padding-top: 12px; font-size: 16px;">
-                <span>Итого стоимость заказа:</span>
-                <span id="digTotalSum" class="result-value" style="font-size: 18px;">0.00 ₽</span>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-    // Справочник стандартных размеров печатных листов
-    const printPresets = {
-        'SRA3': { w: 450, h: 320 },
-        'A3': { w: 420, h: 297 },
-        'A4': { w: 297, h: 210 },
-        'A2': { w: 594, h: 420 }
-    };
-
-    // Справочник стандартных размеров изделий
-    const prodPresets = {
-        'A4': { w: 210, h: 297 },
-        'A5': { w: 210, h: 148 },
-        'A6': { w: 148, h: 105 },
-        'Card': { w: 90, h: 50 }
-    };
-
-    // Матрица ламинирования по скриншоту
-    const lamMatrix = {
-        'A5': {
-            'Глянцевая 75 мкм': 17,
-            'Глянцевая самокл. 80 мкм': 50
-        },
-        'A4': {
-            'Глянцевая 25 - 32 мкм': 15,
-            'Глянцевая 75 мкм': 24,
-            'Глянцевая 125 мкм': 32,
-            'Глянцевая 250 мкм': 75,
-            'Глянцевая самокл. 80 мкм': 91,
-            'Матовая 25 - 32 мкм': 17,
-            'Матовая 75 мкм': 42,
-            'Матовая 125 мкм': 53,
-            'Touch-Cover (софт-тач) 32-34 мкм': 50
-        },
-        'A3': {
-            'Глянцевая 25 - 32 мкм': 30,
-            'Глянцевая 75 мкм': 47,
-            'Глянцевая 125 мкм': 63,
-            'Глянцевая 250 мкм': 149,
-            'Глянцевая самокл. 80 мкм': 182,
-            'Матовая 25 - 32 мкм': 33,
-            'Матовая 75 мкм': 83,
-            'Матовая 125 мкм': 106,
-            'Touch-Cover (софт-тач) 32-34 мкм': 99
-        },
-        'pockets': {
-            'Глянцевая 75 мкм': 12
-        }
-    };
-
-    // Матрица переплета по скриншоту
-    const bindMatrix = {
-        'metal': {
-            '6.5': 23.00,
-            '12.5': 36.50
-        },
-        'plastic': {
-            '6.5': 20.00,
-            '8': 23.00,
-            '12.5': 30.00,
-            '20': 40.00,
-            '50': 107.00
-        }
-    };
-
-    // Прайс-лист цифровой печати
-    const digitalPrices = {
-        'paper_80':          [92.00, 76.00, 52.00, 42.00, 29.00, 20.00, 18.00],
-        'paper_90_100':      [96.00, 81.00, 56.00, 45.00, 32.00, 23.00, 21.00],
-        'paper_120':         [102.00, 83.00, 63.00, 50.00, 33.00, 29.00, 25.00],
-        'paper_160':         [105.00, 88.00, 65.00, 53.00, 39.00, 30.00, 28.00],
-        'paper_200':         [106.00, 91.00, 66.00, 55.00, 40.00, 32.00, 29.00],
-        'paper_280_300':     [113.00, 96.00, 72.00, 59.00, 45.00, 36.00, 33.00],
-        'designer_texture':  [248.00, 215.00, 190.00, 180.00, 167.00, 158.00, 143.00],
-        'designer_lux':      [388.00, 372.00, 347.00, 337.00, 323.00, 316.00, 284.00],
-        'sticker_raflatac':  [155.00, 111.00, 86.00, 76.00, 63.00, 55.00, 50.00],
-        'film_mastac':       [396.00, 380.00, 355.00, 347.00, 330.00, 322.00, 290.00],
-        'env_c4':            [90.00, 78.00, 59.00, 52.00, 42.00, 35.00, 32.00],
-        'env_c5':            [87.00, 75.00, 56.00, 48.00, 39.00, 33.00, 30.00],
-        'env_euro':          [87.00, 75.00, 56.00, 48.00, 39.00, 32.00, 29.00]
-    };
-
-    const digitalBackPrices = {
-        'color': [91.00, 75.00, 50.00, 40.00, 26.00, 19.00, 17.00],
-        'bw':    [20.00, 17.00, 13.00, 12.00, 10.00, 7.00, 6.00
-
-
-ерс (за 1 люверс)</span>
+                <span>Люверс (за 1 люверс)</span>
                 <input type="number" step="0.01" id="price_eyelet" value="6.50" oninput="calculatePostpress()">
                 <input type="number" id="qty_eyelet" value="0" oninput="calculatePostpress()">
                 <span id="sum_eyelet" class="result-value">0.00 ₽</span>
@@ -746,13 +551,379 @@ color: var(--text-muted);
                     </select>
                 </div>
             </div>
+            <div class="input-row">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label>Количество переплетов</label>
+                    <input type="number" id="bindQty" value="0" oninput="calculatePostpress()">
+                </div>
+                <div class="form-group" style="margin-bottom: 0; display: flex; align-items: flex-end;">
+                    <div style="width: 100%; padding: 10px 12px; background: #fff; border: 1px solid var(--border); border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 13px; color: var(--text-muted);">Стоимость переплета:</span>
+                        <span id="bindSum" class="result-value">0.00 ₽</span>
+                    </div>
+                </div>
+            </div>
+        </div>
 
+        <!-- Общий итог постпресса -->
+        <div class="total-banner">
+            <span>Итого по постпрессу:</span>
+            <span id="postpressTotalSum">0.00 ₽</span>
+        </div>
+    </div>
 
-const totalSum = printSum + cuttingSum;
+    <!-- Вкладка: Цифровая печать -->
+    <div id="digitalTab" class="tab-content">
+        <div class="sub-section">
+            <div class="section-title">Расчет цифровой печати (формат А3)</div>
+            
+            <div class="form-group">
+                <label>Материал / Бумага</label>
+                <select id="digPaper" onchange="calculateDigital()">
+                    <option value="paper_80">Бумага ВХИ 80г</option>
+                    <option value="paper_90_100">Бумага ВХИ 90-100г</option>
+                    <option value="paper_120">Бумага ВХИ 120г / Мелованная 130г</option>
+                    <option value="paper_160">Бумага ВХИ 160г / Мелованная 150г</option>
+                    <option value="paper_200">Бумага ВХИ 200г / Мелованная 170г</option>
+                    <option value="paper_280_300">Бумага ВХИ 280-300г / Мелованная 300г</option>
+                    <option value="designer_texture">Бумага дизайнерская фактурная «Лен», «Ривз»</option>
+                    <option value="designer_lux">Дизайнерская бумага («золото», «серебро», Majestic, PERL)</option>
+                    <option value="sticker_raflatac">Бумага самоклеящаяся Raflatac</option>
+                    <option value="film_mastac">Пленка самоклеящаяся МасТас</option>
+                    <option value="env_c4">Конверт C4 229x324мм 80г белый</option>
+                    <option value="env_c5">Конверт C5 162x229мм 80г белый</option>
+                    <option value="env_euro">Конверт евро 110x220мм 80г белый</option>
+                </select>
+            </div>
 
+            <div class="form-group">
+                <label>Количество печатных листов</label>
+                <input type="number" id="digQty" value="10" min="1" oninput="calculateDigital()">
+            </div>
+
+            <div class="form-group">
+                <label>Печать по второй стороне</label>
+                <div class="radio-group">
+                    <label class="radio-label">
+                        <input type="radio" name="digBack" value="none" checked onchange="calculateDigital()"> Без второй стороны (4+0)
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="digBack" value="color" onchange="calculateDigital()"> Полноцветная по второй стороне (0+4)
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="digBack" value="bw" onchange="calculateDigital()"> Черно-белая по второй стороне (0+1)
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Результаты цифровой печати -->
+        <div class="results-box" style="background: #f8fafc; padding: 20px;">
+            <div class="result-item">
+                <span>Цена за 1 лист (лицевая сторона):</span>
+                <span id="digPricePerSheet" class="result-value">0.00 ₽</span>
+            </div>
+            <div class="result-item">
+                <span>Цена за 1 лист (вторая сторона):</span>
+                <span id="digBackPricePerSheet" class="result-value">0.00 ₽</span>
+            </div>
+            <div class="result-item">
+                <span>Общая цена за 1 лист (с учетом обеих сторон):</span>
+                <span id="digTotalPerSheet" class="result-value">0.00 ₽</span>
+            </div>
+            <div class="result-item" style="border-top: 1px solid var(--border); margin-top: 12px; padding-top: 12px; font-size: 16px;">
+                <span>Итого стоимость тиража:</span>
+                <span id="digTotalSum" class="result-value" style="font-size: 18px;">0.00 ₽</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Справочник стандартных размеров печатных листов
+    const printPresets = {
+        'SRA3': { w: 450, h: 320 },
+        'A3': { w: 420, h: 297 },
+        'A4': { w: 297, h: 210 },
+        'A2': { w: 594, h: 420 }
+    };
+
+    // Справочник стандартных размеров изделий
+    const prodPresets = {
+        'A4': { w: 210, h: 297 },
+        'A5': { w: 148, h: 210 },
+        'A6': { w: 105, h: 148 },
+        'Card': { w: 90, h: 50 }
+    };
+
+    // Матрица ламинирования по скриншоту
+    const lamMatrix = {
+        'A5': {
+            'Глянцевая 75 мкм': 17,
+            'Глянцевая самокл. 80 мкм': 50
+        },
+        'A4': {
+            'Глянцевая 25 - 32 мкм': 15,
+            'Глянцевая 75 мкм': 24,
+            'Глянцевая 125 мкм': 32,
+            'Глянцевая 250 мкм': 75,
+            'Глянцевая самокл. 80 мкм': 91,
+            'Матовая 25 - 32 мкм': 17,
+            'Матовая 75 мкм': 42,
+            'Матовая 125 мкм': 53,
+            'Touch-Cover (софт-тач) 32-34 мкм': 50
+        },
+        'A3': {
+            'Глянцевая 25 - 32 мкм': 30,
+            'Глянцевая 75 мкм': 47,
+            'Глянцевая 125 мкм': 63,
+            'Глянцевая 250 мкм': 149,
+            'Глянцевая самокл. 80 мкм': 182,
+            'Матовая 25 - 32 мкм': 33,
+            'Матовая 75 мкм': 83,
+            'Матовая 125 мкм': 106,
+            'Touch-Cover (софт-тач) 32-34 мкм': 99
+        },
+        'pockets': {
+            'Глянцевая 75 мкм': 12
+        }
+    };
+
+    // Матрица переплета по скриншоту
+    const bindMatrix = {
+        'metal': {
+            '6.5': 23.00,
+            '12.5': 36.50
+        },
+        'plastic': {
+            '6.5': 20.00,
+            '8': 23.00,
+            '12.5': 30.00,
+            '20': 40.00,
+            '50': 107.00
+        }
+    };
+
+    // Прайс-лист цифровой печати
+    const digitalPrices = {
+        'paper_80':          [92.00, 76.00, 52.00, 42.00, 29.00, 20.00, 18.00],
+        'paper_90_100':      [96.00, 81.00, 56.00, 45.00, 32.00, 23.00, 21.00],
+        'paper_120':         [102.00, 83.00, 63.00, 50.00, 33.00, 29.00, 25.00],
+        'paper_160':         [105.00, 88.00, 65.00, 53.00, 39.00, 30.00, 28.00],
+        'paper_200':         [106.00, 91.00, 66.00, 55.00, 40.00, 32.00, 29.00],
+        'paper_280_300':     [113.00, 96.00, 72.00, 59.00, 45.00, 36.00, 33.00],
+        'designer_texture':  [248.00, 215.00, 190.00, 180.00, 167.00, 158.00, 143.00],
+        'designer_lux':      [388.00, 372.00, 347.00, 337.00, 323.00, 316.00, 284.00],
+        'sticker_raflatac':  [155.00, 111.00, 86.00, 76.00, 63.00, 55.00, 50.00],
+        'film_mastac':       [396.00, 380.00, 355.00, 347.00, 330.00, 322.00, 290.00],
+        'env_c4':            [90.00, 78.00, 59.00, 52.00, 42.00, 35.00, 32.00],
+        'env_c5':            [87.00, 75.00, 56.00, 48.00, 39.00, 33.00, 30.00],
+        'env_euro':          [87.00, 75.00, 56.00, 48.00, 39.00, 32.00, 29.00]
+    };
+
+    const digitalBackPrices = {
+        'color': [91.00, 75.00, 50.00, 40.00, 26.00, 19.00, 17.00],
+        'bw':    [20.00, 17.00, 13.00, 12.00, 10.00, 7.00, 6.00]
+    };
+
+    function getTierIndex(qty) {
+        if (qty <= 9) return 0;
+        if (qty <= 49) return 1;
+        if (qty <= 99) return 2;
+        if (qty <= 249) return 3;
+        if (qty <= 499) return 4;
+        if (qty <= 999) return 5;
+        return 6;
+    }
+
+    function selectPrintPreset() {
+        const val = document.getElementById('printPreset').value;
+        if (val !== 'custom') {
+            document.getElementById('printWidth').value = printPresets[val].w;
+            document.getElementById('printHeight').value = printPresets[val].h;
+        }
+        calculate();
+    }
+
+    function selectProdPreset() {
+        const val = document.getElementById('prodPreset').value;
+        if (val !== 'custom') {
+            document.getElementById('prodWidth').value = prodPresets[val].w;
+            document.getElementById('prodHeight').value = prodPresets[val].h;
+        }
+        calculate();
+    }
+
+    function switchTab(evt, tabName) {
+        const buttons = document.querySelectorAll('.tab-btn');
+        buttons.forEach(btn => btn.classList.remove('active'));
+        evt.currentTarget.classList.add('active');
+
+        const contents = document.querySelectorAll('.tab-content');
+        contents.forEach(content => content.classList.remove('active'));
+        
+        document.getElementById(tabName).classList.add('active');
+
+        if (tabName === 'sheetTab') {
+            calculate();
+        } else if (tabName === 'meterageTab') {
+            calculateMeterage();
+        } else if (tabName === 'postpressTab') {
+            calculatePostpress();
+        } else if (tabName === 'digitalTab') {
+            calculateDigital();
+        }
+    }
+
+    function updateLamTypes() {
+        const format = document.getElementById('lamFormat').value;
+        const typeSelect = document.getElementById('lamType');
+        typeSelect.innerHTML = '';
+
+        const options = lamMatrix[format] || {};
+        for (let name in options) {
+            const opt = document.createElement('option');
+            opt.value = name;
+            opt.textContent = `${name} (${options[name]} ₽)`;
+            typeSelect.appendChild(opt);
+        }
+    }
+
+    function updateBindDiameters() {
+        const type = document.getElementById('bindType').value;
+        const diamSelect = document.getElementById('bindDiameter');
+        diamSelect.innerHTML = '';
+
+        const options = bindMatrix[type] || {};
+        for (let diam in options) {
+            const opt = document.createElement('option');
+            opt.value = diam;
+            opt.textContent = `${diam} мм (${options[diam]} ₽)`;
+            diamSelect.appendChild(opt);
+        }
+    }
+
+    function calculateMeterage() {
+        const rollW = parseFloat(document.getElementById('rollWidth').value) || 0;
+        const pw = parseFloat(document.getElementById('metProdWidth').value) || 0;
+        const ph = parseFloat(document.getElementById('metProdHeight').value) || 0;
+        const qty = parseInt(document.getElementById('metCirculation').value) || 0;
+
+        if (rollW <= 0 || pw <= 0 || ph <= 0 || qty <= 0) {
+            document.getElementById('metCols').innerText = '-';
+            document.getElementById('metLinearMeters').innerText = '-';
+            document.getElementById('metSquareMeters').innerText = '-';
+            return;
+        }
+
+        // Проверяем два варианта ориентации изделия на рулоне (поворот на 90 градусов)
+        // Вариант 1: без поворота изделия (ширина изделия по ширине рулона)
+        let cols1 = Math.floor(rollW / pw);
+        let linear1 = cols1 > 0 ? (Math.ceil(qty / cols1) * ph) / 1000 : Infinity; // в погонных метрах
+
+        // Вариант 2: с поворотом изделия (высота изделия по ширине рулона)
+        let cols2 = Math.floor(rollW / ph);
+        let linear2 = cols2 > 0 ? (Math.ceil(qty / cols2) * pw) / 1000 : Infinity; // в погонных метрах
+
+        let bestCols = 0;
+        let bestLinear = 0;
+
+        // Выбираем вариант с меньшим расходом погонных метров (если влезло)
+        if ((cols1 > 0 && linear1 <= linear2) || cols2 <= 0) {
+            bestCols = cols1;
+            bestLinear = linear1;
+        } else {
+            bestCols = cols2;
+            bestLinear = linear2;
+        }
+
+        if (bestCols <= 0) {
+            document.getElementById('metCols').innerText = 'Изделие шире рулона!';
+            document.getElementById('metLinearMeters').innerText = '-';
+            document.getElementById('metSquareMeters').innerText = '-';
+            return;
+        }
+
+        const squareMeters = (rollW / 1000) * bestLinear;
+
+        document.getElementById('metCols').innerText = `${bestCols} шт. в ряд`;
+        document.getElementById('metLinearMeters').innerText = `${bestLinear.toFixed(3)} пог. м`;
+        document.getElementById('metSquareMeters').innerText = `${squareMeters.toFixed(3)} кв. м`;
+    }
+
+    function calculatePostpress() {
+        const operations = [
+            { id: 'collating', qtyId: 'qty_collating', priceId: 'price_collating', sumId: 'sum_collating' },
+            { id: 'creasing', qtyId: 'qty_creasing', priceId: 'price_creasing', sumId: 'sum_creasing' },
+            { id: 'stapling', qtyId: 'qty_stapling', priceId: 'price_stapling', sumId: 'sum_stapling' },
+            { id: 'eyelet', qtyId: 'qty_eyelet', priceId: 'price_eyelet', sumId: 'sum_eyelet' },
+            { id: 'rounding', qtyId: 'qty_rounding', priceId: 'price_rounding', sumId: 'sum_rounding' },
+            { id: 'cutting', qtyId: 'qty_cutting', priceId: 'price_cutting', sumId: 'sum_cutting' }
+        ];
+
+        let totalBase = 0;
+
+        operations.forEach(op => {
+            const qty = parseFloat(document.getElementById(op.qtyId).value) || 0;
+            const price = parseFloat(document.getElementById(op.priceId).value) || 0;
+            const sum = qty * price;
+            totalBase += sum;
+            document.getElementById(op.sumId).innerText = sum.toFixed(2) + ' ₽';
+        });
+
+        const lamFormat = document.getElementById('lamFormat').value;
+        const lamType = document.getElementById('lamType').value;
+        const lamQty = parseFloat(document.getElementById('lamQty').value) || 0;
+        
+        let lamPricePerUnit = 0;
+        if (lamMatrix[lamFormat] && lamMatrix[lamFormat][lamType] !== undefined) {
+            lamPricePerUnit = lamMatrix[lamFormat][lamType];
+        }
+        const lamTotal = lamQty * lamPricePerUnit;
+        document.getElementById('lamSum').innerText = lamTotal.toFixed(2) + ' ₽';
+
+        const bindType = document.getElementById('bindType').value;
+        const bindDiameter = document.getElementById('bindDiameter').value;
+        const bindQty = parseFloat(document.getElementById('bindQty').value) || 0;
+
+        let bindPricePerUnit = 0;
+        if (bindMatrix[bindType] && bindMatrix[bindType][bindDiameter] !== undefined) {
+            bindPricePerUnit = bindMatrix[bindType][bindDiameter];
+        }
+        const bindTotal = bindQty * bindPricePerUnit;
+        document.getElementById('bindSum').innerText = bindTotal.toFixed(2) + ' ₽';
+
+        const grandTotal = totalBase + lamTotal + bindTotal;
+        document.getElementById('postpressTotalSum').innerText = grandTotal.toFixed(2) + ' ₽';
+    }
+
+    function calculateDigital() {
+        const paperKey = document.getElementById('digPaper').value;
+        const qty = parseInt(document.getElementById('digQty').value) || 0;
+        const backType = document.querySelector('input[name="digBack"]:checked').value;
+
+        if (qty <= 0) {
+            document.getElementById('digPricePerSheet').innerText = '0.00 ₽';
+            document.getElementById('digBackPricePerSheet').innerText = '0.00 ₽';
+            document.getElementById('digTotalPerSheet').innerText = '0.00 ₽';
+            document.getElementById('digTotalSum').innerText = '0.00 ₽';
+            return;
+        }
+
+        const tierIdx = getTierIndex(qty);
+        const frontPrice = digitalPrices[paperKey] ? digitalPrices[paperKey][tierIdx] : 0;
+        
+        let backPrice = 0;
+        if (backType !== 'none' && digitalBackPrices[backType]) {
+            backPrice = digitalBackPrices[backType][tierIdx];
+        }
+
+        const totalPerSheet = frontPrice + backPrice;
+        const totalSum = totalPerSheet * qty;
+
+        document.getElementById('digPricePerSheet').innerText = frontPrice.toFixed(2) + ' ₽';
+        document.getElementById('digBackPricePerSheet').innerText = backPrice.toFixed(2) + ' ₽';
         document.getElementById('digTotalPerSheet').innerText = totalPerSheet.toFixed(2) + ' ₽';
-        document.getElementById('digPrintSum').innerText = printSum.toFixed(2) + ' ₽';
-        document.getElementById('digCuttingSum').innerText = cuttingSum.toFixed(2) + ' ₽';
         document.getElementById('digTotalSum').innerText = totalSum.toFixed(2) + ' ₽';
     }
 
@@ -857,90 +1028,56 @@ const totalSum = printSum + cuttingSum;
 
         ctx.fillStyle = "#ffffff";
         ctx.shadowColor = "rgba(0, 0, 0, 0.1)";
+        ctx.shadowBlur = 10;
+        ctx.fillRect(startX, startY, sheetScreenW, sheetScreenH);
+        ctx.shadowBlur = 0;
 
+        ctx.strokeStyle = "#cbd5e1";
+        ctx.lineWidth = 1;
+        ctx.strokeRect(startX, startY, sheetScreenW, sheetScreenH);
 
-uareMeters').innerText = '-';
-            return;
+        const marginScreen = margin * scale;
+        ctx.strokeStyle = "#94a3b8";
+        ctx.setLineDash([4, 4]);
+        ctx.strokeRect(
+            startX + marginScreen, 
+            startY + marginScreen, 
+            sheetScreenW - (marginScreen * 2), 
+            sheetScreenH - (marginScreen * 2)
+        );
+        ctx.setLineDash([]);
+
+        const usableStartX = startX + marginScreen;
+        const usableStartY = startY + marginScreen;
+        const itemScreenW = itemW * scale;
+        const itemScreenH = itemH * scale;
+
+        ctx.fillStyle = "rgba(79, 70, 229, 0.15)";
+        ctx.strokeStyle = "#4f46e5";
+        ctx.lineWidth = 1;
+
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                const ix = usableStartX + (c * itemScreenW);
+                const iy = usableStartY + (r * itemScreenH);
+
+                ctx.fillRect(ix, iy, itemScreenW, itemScreenH);
+                ctx.strokeRect(ix, iy, itemScreenW, itemScreenH);
+            }
         }
-
-        const squareMeters = (rollW / 1000) * bestLinear;
-
-        document.getElementById('metCols').innerText = `${bestCols} шт. в ряд`;
-        document.getElementById('metLinearMeters').innerText = `${bestLinear.toFixed(3)} пог. м`;
-        document.getElementById('metSquareMeters').innerText = `${squareMeters.toFixed(3)} кв. м`;
     }
 
-    function calculatePostpress() {
-        const operations = [
-            { id: 'collating', qtyId: 'qty_collating', priceId: 'price_collating', sumId: 'sum_collating' },
-            { id: 'creasing', qtyId: 'qty_creasing', priceId: 'price_creasing', sumId: 'sum_creasing' },
-            { id: 'stapling', qtyId: 'qty_stapling', priceId: 'price_stapling', sumId: 'sum_stapling' },
-            { id: 'eyelet', qtyId: 'qty_eyelet', priceId: 'price_eyelet', sumId: 'sum_eyelet' },
-            { id: 'rounding', qtyId: 'qty_rounding', priceId: 'price_rounding', sumId: 'sum_rounding' },
-            { id: 'cutting', qtyId: 'qty_cutting', priceId: 'price_cutting', sumId: 'sum_cutting' }
-        ];
+    window.onload = function() {
+        updateLamTypes();
+        updateBindDiameters();
+        calculate();
+        calculateMeterage();
+        calculateDigital();
+    };
+    window.onresize = function() {
+        calculate();
+    };
+</script>
 
-        let totalBase = 0;
-
-        operations.forEach(op => {
-            const qty = parseFloat(document.getElementById(op.qtyId).value) || 0;
-            const price = parseFloat(document.getElementById(op.priceId).value) || 0;
-            const sum = qty * price;
-            totalBase += sum;
-            document.getElementById(op.sumId).innerText = sum.toFixed(2) + ' ₽';
-        });
-
-        const lamFormat = document.getElementById('lamFormat').value;
-        const lamType = document.getElementById('lamType').value;
-        const lamQty = parseFloat(document.getElementById('lamQty').value) || 0;
-        
-        let lamPricePerUnit = 0;
-        if (lamMatrix[lamFormat] && lamMatrix[lamFormat][lamType] !== undefined) {
-            lamPricePerUnit = lamMatrix[lamFormat][lamType];
-        }
-        const lamTotal = lamQty * lamPricePerUnit;
-        document.getElementById('lamSum').innerText = lamTotal.toFixed(2) + ' ₽';
-
-        const bindType = document.getElementById('bindType').value;
-        const bindDiameter = document.getElementById('bindDiameter').value;
-        const bindQty = parseFloat(document.getElementById('bindQty').value) || 0;
-
-        let bindPricePerUnit = 0;
-        if (bindMatrix[bindType] && bindMatrix[bindType][bindDiameter] !== undefined) {
-            bindPricePerUnit = bindMatrix[bindType][bindDiameter];
-        }
-        const bindTotal = bindQty * bindPricePerUnit;
-        document.getElementById('bindSum').innerText = bindTotal.toFixed(2) + ' ₽';
-
-        const grandTotal = totalBase + lamTotal + bindTotal;
-        document.getElementById('postpressTotalSum').innerText = grandTotal.toFixed(2) + ' ₽';
-    }
-
-    function calculateDigital() {
-        const paperKey = document.getElementById('digPaper').value;
-        const qty = parseInt(document.getElementById('digQty').value) || 0;
-        const cutsPerSheet = parseInt(document.getElementById('digCuts').value) || 0;
-        const backType = document.querySelector('input[name="digBack"]:checked').value;
-
-        if (qty <= 0) {
-            document.getElementById('digTotalPerSheet').innerText = '0.00 ₽';
-            document.getElementById('digPrintSum').innerText = '0.00 ₽';
-            document.getElementById('digCuttingSum').innerText = '0.00 ₽';
-            document.getElementById('digTotalSum').innerText = '0.00 ₽';
-            return;
-        }
-
-        const tierIdx = getTierIndex(qty);
-        const frontPrice = digitalPrices[paperKey] ? digitalPrices[paperKey][tierIdx] : 0;
-        
-        let backPrice = 0;
-        if (backType !== 'none' && digitalBackPrices[backType]) {
-            backPrice = digitalBackPrices[backType][tierIdx];
-        }
-
-        const totalPerSheet = frontPrice + backPrice;
-        const printSum = totalPerSheet * qty;
-
-        // Формула резки из Excel: =ОКРУГЛВВЕРХ(L$5/50;0)*L$4*4*8,5
-        // где L$5 — кол-во листов, L$4 — кол-во резов на 1 лист
-        const cuttingSum = Math.ceil(qty / 50) * cutsPerSheet * 8.5;
+</body>
+</html>
