@@ -1,0 +1,1716 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор типографии</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --sidebar-bg: #1e293b;
+            --sidebar-text: #94a3b8;
+            --sidebar-text-hover: #ffffff;
+            --sidebar-active: #4f46e5;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #cbd5e1;
+            --radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .app-layout {
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 260px;
+            background-color: var(--sidebar-bg);
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            flex-shrink: 0;
+        }
+
+        .sidebar-brand {
+            padding: 24px 20px;
+            font-size: 18px;
+            font-weight: 700;
+            color: #ffffff;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding: 16px 12px;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            text-align: left;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--sidebar-text);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--sidebar-text-hover);
+        }
+
+        .tab-btn.active {
+            background: var(--sidebar-active);
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+
+        .main-content {
+            flex-grow: 1;
+            background-color: var(--bg-color);
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tab-pane {
+            display: none;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .tab-pane.active {
+            display: flex;
+        }
+
+        .page-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            body {
+                height: auto;
+                overflow: auto;
+            }
+            .app-layout {
+                flex-direction: column;
+                height: auto;
+            }
+            .sidebar {
+                width: 100%;
+            }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+        }
+
+        .section-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        label {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            background: #fff;
+            color: var(--text-main);
+            transition: border-color 0.2s;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .checkbox-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--text-main);
+            cursor: pointer;
+            margin-top: 8px;
+        }
+
+        .checkbox-row input {
+            width: auto;
+        }
+
+        .hint {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .results-box {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            font-size: 13px;
+        }
+
+        .result-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .result-value {
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .preview-container {
+            width: 100%;
+            height: 260px;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        canvas {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            background: #fff;
+        }
+
+        th, td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            text-align: left;
+        }
+
+        th {
+            background: #f1f5f9;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .postpress-table {
+            display: grid;
+            grid-template-columns: 2.5fr 1.2fr 1fr 1fr;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 8px;
+            background: #fff;
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 13px;
+        }
+
+        .postpress-header {
+            font-weight: 600;
+            background: #f1f5f9;
+            color: var(--text-muted);
+        }
+
+        .total-banner {
+            background: #eef2ff;
+            border: 1px solid #c7d2fe;
+            border-radius: 8px;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-top: 4px;
+        }
+
+        .radio-label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 13px;
+            cursor: pointer;
+            font-weight: normal;
+        }
+
+        .radio-label input {
+            width: auto;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-layout">
+    <!-- Боковое меню с вкладками -->
+    <div class="sidebar">
+        <div class="sidebar-brand">Калькулятор типографии</div>
+        <div class="sidebar-menu">
+            <button class="tab-btn active" onclick="switchTab(event, 'refTab')">1. Справочник форматов</button>
+            <button class="tab-btn" onclick="switchTab(event, 'sheetTab')">2. Вместимость листа</button>
+            <button class="tab-btn" onclick="switchTab(event, 'meterageTab')">3. Расчет метража</button>
+            <button class="tab-btn" onclick="switchTab(event, 'postpressTab')">4. Постпресс</button>
+            <button class="tab-btn" onclick="switchTab(event, 'digitalTab')">5. Цифровая печать</button>
+            <button class="tab-btn" onclick="switchTab(event, 'interiorTab')">6. Интерьерная печать</button>
+            <button class="tab-btn" onclick="switchTab(event, 'wideTab')">7. Широкоформатная печать</button>
+            <button class="tab-btn" onclick="switchTab(event, 'uvTab')">8. УФ-печать</button>
+            <button class="tab-btn" onclick="switchTab(event, 'dtfTab')">9. DTF-печать</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tamponSilkTab')">10. Тампопечать и шелкография</button>
+        </div>
+    </div>
+
+    <!-- Основной контент -->
+    <div class="main-content">
+
+        <!-- Вкладка 1: Справочник форматов -->
+        <div id="refTab" class="tab-pane active">
+            <div>
+                <div class="page-title">Справочник форматов бумаги</div>
+                <div class="hint" style="margin-bottom: 12px;">Стандартные размеры бумажных листов серии А, SRA и их площадь.</div>
+            </div>
+            <div class="card" style="padding: 0; overflow: hidden;">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Формат</th>
+                                <th>Ширина (мм)</th>
+                                <th>Высота (мм)</th>
+                                <th>Площадь (кв. м)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="refTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Вкладка 2: Вместимость листа -->
+        <div id="sheetTab" class="tab-pane">
+            <div class="page-title">Расчет вместимости печатного листа</div>
+            
+            <div class="grid-2">
+                <div style="display: flex; flex-direction: column; gap: 16px;">
+                    <div class="card">
+                        <div class="section-title">Печатный лист</div>
+                        <div class="form-group">
+                            <label>Стандартный формат</label>
+                            <select id="printPreset" onchange="onPrintPresetChange()">
+                                <option value="custom">Свой размер</option>
+                                <option value="SRA3" selected>SRA3 (450 × 320 мм)</option>
+                                <option value="A3">A3 (420 × 297 мм)</option>
+                                <option value="A4">A4 (297 × 210 мм)</option>
+                                <option value="A2">A2 (594 × 420 мм)</option>
+                            </select>
+                        </div>
+                        <div class="input-row">
+                            <div class="form-group">
+                                <label>Ширина (мм)</label>
+                                <input type="number" id="printWidth" value="450" oninput="onPrintCustomInput()">
+                            </div>
+                            <div class="form-group">
+                                <label>Высота (мм)</label>
+                                <input type="number" id="printHeight" value="320" oninput="onPrintCustomInput()">
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-top: 10px;">
+                            <label>Отступы от краев (мм)</label>
+                            <input type="number" id="printMargin" value="5" oninput="calculateSheet()">
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="section-title">
+                            <span>Изделие 1</span>
+                            <label class="checkbox-row" style="margin: 0; font-size: 12px;">
+                                <input type="checkbox" id="prod1BleedCheck" onchange="toggleBleed1()"> С вылетами
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>Стандартный формат</label>
+                            <select id="prodPreset1" onchange="onProd1PresetChange()">
+                                <option value="custom">Свой размер</option>
+                                <option value="A4">A4 (297 × 210 мм)</option>
+                                <option value="A5">A5 (210 × 148 мм)</option>
+                                <option value="A6">A6 (148 × 105 мм)</option>
+                                <option value="Card" selected>Визитка (90 × 50 мм)</option>
+                            </select>
+                        </div>
+                        <div class="input-row">
+                            <div class="form-group">
+                                <label>Ширина (мм)</label>
+                                <input type="number" id="prodWidth1" value="90" oninput="onProd1CustomInput()">
+                            </div>
+                            <div class="form-group">
+                                <label>Высота (мм)</label>
+                                <input type="number" id="prodHeight1" value="50" oninput="onProd1CustomInput()">
+                            </div>
+                        </div>
+                        <div class="form-group" id="bleed1Box" style="display: none; margin-top: 8px;">
+                            <label>Вылеты под обрез (мм с каждой стороны)</label>
+                            <input type="number" id="bleed1Val" value="2" oninput="calculateSheet()">
+                        </div>
+                        <div class="form-group" style="margin-top: 10px;">
+                            <label>Тираж изделия 1 (шт.)</label>
+                            <input type="number" id="circulation1" value="1000" oninput="calculateSheet()">
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="section-title">
+                            <span>Изделие 2 (Дополнительное)</span>
+                            <label class="checkbox-row" style="margin: 0; font-size: 12px;">
+                                <input type="checkbox" id="enableSecondProduct" onchange="toggleSecondProduct()"> Включить второе
+                            </label>
+                        </div>
+                        <div id="secondProductContainer" style="opacity: 0.5; pointer-events: none;">
+                            <div class="form-group">
+                                <label>Стандартный формат</label>
+                                <select id="prodPreset2" onchange="onProd2PresetChange()">
+                                    <option value="custom">Свой размер</option>
+                                    <option value="A4">A4 (297 × 210 мм)</option>
+                                    <option value="A5" selected>A5 (210 × 148 мм)</option>
+                                    <option value="A6">A6 (148 × 105 мм)</option>
+                                    <option value="Card">Визитка (90 × 50 мм)</option>
+                                </select>
+                            </div>
+                            <div class="input-row">
+                                <div class="form-group">
+                                    <label>Ширина (мм)</label>
+                                    <input type="number" id="prodWidth2" value="210" oninput="onProd2CustomInput()">
+                                </div>
+                                <div class="form-group">
+                                    <label>Высота (мм)</label>
+                                    <input type="number" id="prodHeight2" value="148" oninput="onProd2CustomInput()">
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-top: 10px;">
+                                <label>Тираж изделия 2 (шт.)</label>
+                                <input type="number" id="circulation2" value="500" oninput="calculateSheet()">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 16px;">
+                    <div class="card">
+                        <div class="section-title">Результаты расчета</div>
+                        <div class="results-box">
+                            <div class="result-item">
+                               <span>Полезная зона листа:</span>
+                               <span id="resField" class="result-value">-</span>
+                            </div>
+                            <div class="result-item">
+                               <span>Изделий 1 на листе:</span>
+                               <span id="resPerSheet1" class="result-value">-</span>
+                            </div>
+                            <div class="result-item">
+                               <span>Листов на тираж Изделия 1:</span>
+                               <span id="resSheets1" class="result-value">-</span>
+                            </div>
+                            <div id="resItem2Block" style="display: none; border-top: 1px dashed var(--border); margin-top: 6px; padding-top: 6px;">
+                                <div class="result-item">
+                                   <span>Изделий 2 на листе:</span>
+                                   <span id="resPerSheet2" class="result-value">-</span>
+                                </div>
+                                <div class="result-item">
+                                   <span>Листов на тираж Изделия 2:</span>
+                                   <span id="resSheets2" class="result-value">-</span>
+                                </div>
+                            </div>
+                            <div class="result-item" style="border-top: 1px solid var(--border); margin-top: 8px; padding-top: 8px;">
+                               <span>Общие листы на тираж:</span>
+                               <span id="resTotalSheets" class="result-value" style="font-size: 15px;">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" style="flex-grow: 1; display: flex; flex-direction: column;">
+                        <div class="section-title" style="margin-bottom: 8px;">Визуализация раскладки</div>
+                        <div class="preview-container" style="flex-grow: 1; min-height: 250px;">
+                            <canvas id="layoutCanvas" width="350" height="250"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Вкладка 3: Расчет метража -->
+        <div id="meterageTab" class="tab-pane">
+            <div class="page-title">Расчет метража (Широкоформатная печать)</div>
+            
+            <div class="grid-2">
+                <div class="card">
+                    <div class="section-title">Параметры печати</div>
+                    <div class="form-group">
+                        <label>Ширина рулона (мм)</label>
+                        <input type="number" id="rollWidth" value="1050" oninput="calculateMeterage()">
+                        <div class="hint">Например: 1050, 1260, 1370, 1520 мм</div>
+                    </div>
+                    <div class="input-row">
+                        <div class="form-group">
+                            <label>Ширина изделия (мм)</label>
+                            <input type="number" id="metProdWidth" value="500" oninput="calculateMeterage()">
+                        </div>
+                        <div class="form-group">
+                            <label>Высота изделия (мм)</label>
+                            <input type="number" id="metProdHeight" value="700" oninput="calculateMeterage()">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Тираж (шт.)</label>
+                        <input type="number" id="metCirculation" value="10" min="1" oninput="calculateMeterage()">
+                    </div>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 16px;">
+                    <div class="card">
+                        <div class="section-title">Результаты расчета</div>
+                        <div class="results-box">
+                            <div class="result-item">
+                                <span>Размещение по ширине рулона:</span>
+                                <span id="metCols" class="result-value">-</span>
+                            </div>
+                            <div class="result-item">
+                                <span>Погонные метры (длина рулона):</span>
+                                <span id="metLinearMeters" class="result-value">-</span>
+                            </div>
+                            <div class="result-item">
+                                <span>Площадь чистого изделия (кв. м):</span>
+                                <span id="metSquareProduct" class="result-value">-</span>
+                            </div>
+                            <div class="result-item" style="border-top: 1px solid var(--border); margin-top: 8px; padding-top: 8px; font-size: 15px;">
+                                <span>Общая площадь рулона (кв. м):</span>
+                                <span id="metSquareRoll" class="result-value" style="font-size: 16px;">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" style="flex-grow: 1; display: flex; flex-direction: column;">
+                        <div class="section-title" style="margin-bottom: 8px;">Схема раскладки изделий на рулоне</div>
+                        <div class="preview-container" style="flex-grow: 1; min-height: 220px;">
+                            <canvas id="meterageCanvas" width="350" height="220"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Вкладка 4: Постпресс -->
+        <div id="postpressTab" class="tab-pane">
+            <div class="page-title">Постпечатная обработка</div>
+            
+            <div class="card">
+                <div class="section-title" style="margin-bottom: 8px;">Базовые операции</div>
+                <div class="postpress-table postpress-header">
+                    <span>Услуга</span>
+                    <span>Цена за ед. (₽)</span>
+                    <span>Кол-во</span>
+                    <span>Итого (₽)</span>
+                </div>
+                <div class="postpress-table">
+                    <span>Листоподбор (за 1 лист)</span>
+                    <input type="number" step="0.01" id="p_collating_price" value="0.40" oninput="calcPostpress()">
+                    <input type="number" id="p_collating_qty" value="0" oninput="calcPostpress()">
+                    <span id="p_collating_sum" class="result-value">0.00 ₽</span>
+                </div>
+                <div class="postpress-table">
+                    <span>Биговка (за 1 биг)</span>
+                    <input type="number" step="0.01" id="p_creasing_price" value="1.70" oninput="calcPostpress()">
+                    <input type="number" id="p_creasing_qty" value="0" oninput="calcPostpress()">
+                    <span id="p_creasing_sum" class="result-value">0.00 ₽</span>
+                </div>
+                <div class="postpress-table">
+                    <span>Степлирование (за 1 скрепку)</span>
+                    <input type="number" step="0.01" id="p_stapling_price" value="2.70" oninput="calcPostpress()">
+                    <input type="number" id="p_stapling_qty" value="0" oninput="calcPostpress()">
+                    <span id="p_stapling_sum" class="result-value">0.00 ₽</span>
+                </div>
+                <div class="postpress-table">
+                    <span>Люверс (за 1 шт.)</span>
+                    <input type="number" step="0.01" id="p_eyelet_price" value="6.50" oninput="calcPostpress()">
+                    <input type="number" id="p_eyelet_qty" value="0" oninput="calcPostpress()">
+                    <span id="p_eyelet_sum" class="result-value">0.00 ₽</span>
+                </div>
+                <div class="postpress-table">
+                    <span>Скругление углов (за 1 экз.)</span>
+                    <input type="number" step="0.01" id="p_rounding_price" value="2.50" oninput="calcPostpress()">
+                    <input type="number" id="p_rounding_qty" value="0" oninput="calcPostpress()">
+                    <span id="p_rounding_sum" class="result-value">0.00 ₽</span>
+                </div>
+                <div class="postpress-table">
+                    <span>Резка (стопа до 50 л., за 1 рез)</span>
+                    <input type="number" step="0.01" id="p_cutting_price" value="8.50" oninput="calcPostpress()">
+                    <input type="number" id="p_cutting_qty" value="0" oninput="calcPostpress()">
+                    <span id="p_cutting_sum" class="result-value">0.00 ₽</span>
+                </div>
+            </div>
+
+            <div class="grid-2" style="margin-top: 4px;">
+                <div class="card">
+                    <div class="section-title">Ламинирование</div>
+                    <div class="input-row" style="margin-bottom: 10px;">
+                        <div class="form-group" style="margin: 0;">
+                            <label>Формат</label>
+                            <select id="lamFormat" onchange="updateLamTypes(); calcPostpress();">
+                                <option value="A5">A5</option>
+                                <option value="A4" selected>A4</option>
+                                <option value="A3">A3</option>
+                                <option value="pockets">Кармашки (60x95, 80x110)</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin: 0;">
+                            <label>Пленка / покрытие</label>
+                            <select id="lamType" onchange="calcPostpress()"></select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Стороны ламинации</label>
+                        <div class="radio-group">
+                            <label class="radio-label"><input type="radio" name="lamSide" value="2" checked onchange="calcPostpress()"> С двух сторон (1+1)</label>
+                            <label class="radio-label"><input type="radio" name="lamSide" value="1" onchange="calcPostpress()"> С одной стороны (1+0)</label>
+                        </div>
+                    </div>
+                    <div class="input-row" style="align-items: flex-end; margin-top: 10px;">
+                        <div class="form-group" style="margin: 0;">
+                            <label>Количество листов</label>
+                            <input type="number" id="lamQty" value="0" oninput="calcPostpress()">
+                        </div>
+                        <div style="font-size: 14px; font-weight: 600; color: var(--primary); padding-bottom: 8px;" id="lamSum">0.00 ₽</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="section-title">Переплёт пружиной</div>
+                    <div class="input-row" style="margin-bottom: 10px;">
+                        <div class="form-group" style="margin: 0;">
+                            <label>Тип переплета</label>
+                            <select id="bindType" onchange="updateBindDiameters(); calcPostpress();">
+                                <option value="metal" selected>Металлическая</option>
+                                <option value="plastic">Пластиковая</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin: 0;">
+                            <label>Диаметр (мм)</label>
+                            <select id="bindDiameter" onchange="calcPostpress()"></select>
+                        </div>
+                    </div>
+                    <div class="input-row" style="align-items: flex-end; margin-top: 28px;">
+                        <div class="form-group" style="margin: 0;">
+                            <label>Количество переплетов</label>
+                            <input type="number" id="bindQty" value="0" oninput="calcPostpress()">
+                        </div>
+                        <div style="font-size: 14px; font-weight: 600; color: var(--primary); padding-bottom: 8px;" id="bindSum">0.00 ₽</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="total-banner">
+                <span>Итого по постпрессу:</span>
+                <span id="postpressTotalSum">0.00 ₽</span>
+            </div>
+        </div>
+
+        <!-- Вкладка 5: Цифровая печать -->
+        <div id="digitalTab" class="tab-pane">
+            <div class="page-title">Цифровая печать (Формат А3)</div>
+            
+            <div class="grid-2">
+                <div class="card" style="display: flex; flex-direction: column; gap: 14px;">
+                    <div class="section-title">Параметры заказа</div>
+                    <div class="form-group">
+                        <label>Материал / Бумага</label>
+                        <select id="digPaper" onchange="calcDigital()">
+                            <option value="paper_80">Бумага ВХИ 80г</option>
+                            <option value="paper_90_100">Бумага ВХИ 90-100г</option>
+                            <option value="paper_120">Бумага ВХИ 120г / Мелованная 130г</option>
+                            <option value="paper_160">Бумага ВХИ 160г / Мелованная 150г</option>
+                            <option value="paper_200">Бумага ВХИ 200г / Мелованная 170г</option>
+                            <option value="paper_280_300">Бумага ВХИ 280-300г / Мелованная 300г</option>
+                            <option value="designer_texture">Дизайнерская фактурная «Лен», «Ривз»</option>
+                            <option value="designer_lux">Дизайнерская («золото», «серебро», Majestic, PERL)</option>
+                            <option value="sticker_raflatac">Самоклеящаяся бумага Raflatac</option>
+                            <option value="film_mastac">Самоклеящаяся пленка МасТас</option>
+                            <option value="env_c4">Конверт C4 80г белый</option>
+                            <option value="env_c5">Конверт C5 80г белый</option>
+                            <option value="env_euro">Конверт евро 80г белый</option>
+                            <option value="custom_paper" style="font-weight: bold; color: var(--primary);">Своя бумага (только печать)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Кол-во печатных листов</label>
+                        <input type="number" id="digQty" value="50" min="1" oninput="calcDigital()">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Формат готового изделия</label>
+                        <select id="digCutPreset" onchange="onDigPresetChange()">
+                            <option value="A3">А3</option>
+                            <option value="A4" selected>A4</option>
+                            <option value="A5">A5</option>
+                            <option value="A6">A6</option>
+                            <option value="custom">Свой размер</option>
+                        </select>
+                    </div>
+
+                    <div class="input-row" id="customSizeBox" style="display: none;">
+                        <div class="form-group">
+                            <label>Ширина изделия (мм)</label>
+                            <input type="number" id="digItemW" value="100" oninput="calcDigital()">
+                        </div>
+                        <div class="form-group">
+                            <label>Высота изделия (мм)</label>
+                            <input type="number" id="digItemH" value="100" oninput="calcDigital()">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Печать по второй стороне</label>
+                        <div class="radio-group">
+                            <label class="radio-label"><input type="radio" name="digBack" value="none" checked onchange="calcDigital()"> 4+0</label>
+                            <label class="radio-label"><input type="radio" name="digBack" value="color" onchange="calcDigital()"> 4+4 (цвет)</label>
+                            <label class="radio-label"><input type="radio" name="digBack" value="bw" onchange="calcDigital()"> 4+1 (ч/б)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="section-title">Калькуляция стоимости</div>
+                    <div class="results-box" style="display: flex; flex-direction: column; gap: 10px;">
+                        <div class="result-item">
+                            <span>Цена печати за 1 лист:</span>
+                            <span id="digPerSheetSum" class="result-value">0.00 ₽</span>
+                        </div>
+                        <div class="result-item">
+                            <span>Стоимость тиража (печать/бумага):</span>
+                            <span id="digPrintSum" class="result-value">0.00 ₽</span>
+                        </div>
+                        <div class="result-item">
+                            <span>Стоимость резки (стопа до 50л):</span>
+                            <span id="digCuttingSum" class="result-value">0.00 ₽</span>
+                        </div>
+                        <div class="result-item" style="border-top: 1px solid var(--border); padding-top: 10px; font-size: 16px;">
+                            <span>Итого стоимость заказа:</span>
+                            <span id="digTotalSum" class="result-value" style="font-size: 18px;">0.00 ₽</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Вкладка 6: Интерьерная печать -->
+        <div id="interiorTab" class="tab-pane">
+            <div class="page-title">Интерьерная и широкоформатная печать</div>
+            <div class="hint">Максимальная ширина печати 1600 мм. Заказы объемом менее 1,0 м² считаются за целый 1,0 м².</div>
+            
+            <div class="grid-2">
+                <div class="card" style="display: flex; flex-direction: column; gap: 14px;">
+                    <div class="section-title">Параметры расчета</div>
+                    
+                    <div class="form-group">
+                        <label>Тип услуги</label>
+                        <select id="intServiceType" onchange="onInteriorServiceTypeChange(); calcInterior();">
+                            <option value="print">1. Печать (Mimaki / Latex)</option>
+                            <option value="lam_mount">2. Ламинация / Накатка</option>
+                            <option value="plotter">3. Плоттерная резка (без печати)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" id="intMachineGroup">
+                        <label>Оборудование / Технология печати</label>
+                        <select id="intMachine" onchange="updateInteriorMaterials(); calcInterior();">
+                            <option value="mimaki">Интерьерная экосольвентная печать на Mimaki CJV-300</option>
+                            <option value="latex">Интерьерная латексная печать на HP Latex</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" id="intMaterialGroup">
+                        <label>Материал / Услуга</label>
+                        <select id="intMaterial" onchange="onInteriorMaterialChange(); calcInterior();"></select>
+                        <div class="hint" id="intDesc" style="margin-top: 6px; color: var(--text-main); font-style: italic;"></div>
+                    </div>
+
+                    <div class="form-group" id="intQualityGroup">
+                        <label>Качество печати</label>
+                        <select id="intQuality" onchange="calcInterior()">
+                            <option value="720">720 dpi</option>
+                            <option value="1440" selected>1440 dpi (Фотографическое)</option>
+                        </select>
+                    </div>
+
+                    <div class="input-row">
+                        <div class="form-group">
+                            <label>Ширина изделия (мм)</label>
+                            <input type="number" id="intW" value="1000" oninput="calcInterior()">
+                        </div>
+                        <div class="form-group">
+                            <label>Высота изделия (мм)</label>
+                            <input type="number" id="intH" value="1000" oninput="calcInterior()">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Тираж (шт.)</label>
+                        <input type="number" id="intQty" value="1" min="1" oninput="calcInterior()">
+                    </div>
+
+                    <div class="section-title" style="margin-top: 10px;">Дополнительные работы</div>
+                    
+                    <div class="input-row">
+                        <div class="form-group">
+                            <label>Установка люверсов (шт.)</label>
+                            <input type="number" id="intEyelets" value="0" min="0" oninput="calcInterior()">
+                        </div>
+                        <div class="form-group">
+                            <label>Резка по изображению (пог. м)</label>
+                            <input type="number" id="intContourCut" value="0" min="0" oninput="calcInterior()">
+                        </div>
+                    </div>
+
+                    <div class="input-row">
+                        <div class="form-group">
+                            <label>Карманы (пог. м)</label>
+                            <input type="number" id="intPockets" value="0" min="0" oninput="calcInterior()">
+                        </div>
+                        <div class="form-group">
+                            <label>Склейка/сшивка (пог. м)</label>
+                            <input type="number" id="intGlue" value="0" min="0" oninput="calcInterior()">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="section-title">Итоговый расчет заказа</div>
+                    <div class="results-box" style="display: flex; flex-direction: column; gap: 10px;">
+                        <div class="result-item">
+                            <span>Тираж изделия:</span>
+                            <span id="resIntQty" class="result-value">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span>Общий метраж (площадь):</span>
+                            <span id="resIntArea" class="result-value">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span>Стоимость основной услуги:</span>
+                            <span id="resIntPrintSum" class="result-value">0.00 ₽</span>
+                        </div>
+                        <div class="result-item">
+                            <span>Стоимость доп. работ:</span>
+                            <span id="resIntPostSum" class="result-value">0.00 ₽</span>
+                        </div>
+                        <div class="result-item" style="border-top: 1px solid var(--border); padding-top: 10px; font-size: 16px;">
+                            <span>Общая стоимость заказа:</span>
+                            <span id="resIntTotalSum" class="result-value" style="font-size: 18px;">0.00 ₽</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Вкладка 7: Широкоформатная печать -->
+        <div id="wideTab" class="tab-pane">
+            <div class="page-title">Широкоформатная печать</div>
+            <div class="hint">Максимальная ширина печати 3200 мм. Заказы объемом менее 1,0 м² считаются за целый 1,0 м². Цены зависят от тиража (до 50 м² и от 50 м²).</div>
+            
+            <div class="grid-2">
+                <div class="card" style="display: flex; flex-direction: column; gap: 14px;">
+                    <div class="section-title">Параметры расчета</div>
+                    
+                    <div class="form-group">
+                        <label>Материал</label>
+                        <select id="wideMaterial" onchange="onWideMaterialChange(); calcWide();"></select>
+                        <div class="hint" id="wideDesc" style="margin-top: 6px; color: var(--text-main); font-style: italic;"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Качество печати</label>
+                        <select id="wideQuality" onchange="calcWide()">
+                            <option value="360" selected>360 dpi</option>
+                            <option value="720">720 dpi</option>
+                        </select>
+                    </div>
+
+                    <div class="input-row">
+                        <div class="form-group">
+                            <label>Ширина изделия (мм)</label>
+                            <input type="number" id="wideW" value="1000" oninput="calcWide()">
+                        </div>
+                        <div class="form-group">
+                            <label>Высота изделия (мм)</label>
+                            <input type="number" id="wideH" value="1000" oninput="calcWide()">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Тираж (шт.)</label>
+                        <input type="number" id="wideQty" value="1" min="1" oninput="calcWide()">
+                    </div>
+
+                    <div class="section-title" style="margin-top: 10px;">Дополнительные работы</div>
+                    
+                    <div class="input-row">
+                        <div class="form-group">
+                            <label>Установка люверсов (шт.)</label>
+                            <input type="number" id="wideEyelets" value="0" min="0" oninput="calcWide()">
+                        </div>
+                        <div class="form-group">
+                            <label>Резка по изображению (пог. м)</label>
+                            <input type="number" id="wideContourCut" value="0" min="0" oninput="calcWide()">
+                        </div>
+                    </div>
+
+                    <div class="input-row">
+                        <div class="form-group">
+                            <label>Карманы (пог. м)</label>
+                            <input type="number" id="widePockets" value="0" min="0" oninput="calcWide()">
+                        </div>
+                        <div class="form-group">
+                            <label>Склейка/сшивка (пог. м)</label>
+                            <input type="number" id="wideGlue" value="0" min="0" oninput="calcWide()">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="section-title">Итоговый расчет заказа</div>
+                    <div class="results-box" style="display: flex; flex-direction: column; gap: 10px;">
+                        <div class="result-item">
+                            <span>Тираж изделия:</span>
+                            <span id="resWideQty" class="result-value">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span>Общий метраж (площадь):</span>
+                            <span id="resWideArea" class="result-value">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span>Примененная цена за м²:</span>
+                            <span id="resWideRate" class="result-value">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span>Стоимость печати / материала:</span>
+                            <span id="resWidePrintSum" class="result-value">0.00 ₽</span>
+                        </div>
+                        <div class="result-item">
+                            <span>Стоимость доп. работ:</span>
+                            <span id="resWidePostSum" class="result-value">0.00 ₽</span>
+                        </div>
+                        <div class="result-item" style="border-top: 1px solid var(--border); padding-top: 10px; font-size: 16px;">
+                            <span>Общая стоимость заказа:</span>
+                            <span id="resWideTotalSum" class="result-value" style="font-size: 18px;">0.00 ₽</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Вкладка 8: УФ-печать -->
+        <div id="uvTab" class="tab-pane">
+            <div class="page-title">УФ-печать на сувенирах и изделиях</div>
+            <div class="hint">Максимальная область печати — 300×420 мм. Изображения более 600 см² рассчитываются индивидуально.</div>
+            
+            <div class="grid-2">
+                <div class="card" style="display: flex; flex-direction: column; gap: 14px;">
+                    <div class="section-title">Параметры печати</div>
+                    
+                    <div class="input-row">
+                        <div class="form-group">
+                            <label>Ширина изображения (мм)</label>
+                            <input type="number" id="uvW" value="30" oninput="calcUV()">
+                        </div>
+                        <div class="form-group">
+                            <label>Высота изображения (мм)</label>
+                            <input type="number" id="uvH" value="20" oninput="calcUV()">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Тираж (шт.)</label>
+                        <input type="number" id="uvQty" value="10" min="1" oninput="calcUV()">
+                    </div>
+
+                    <div class="section-title" style="margin-top: 10px;">Наценки и опции</div>
+                    
+                    <div class="form-group" style="display: flex; flex-direction: column; gap: 6px;">
+                        <label class="checkbox-row"><input type="checkbox" id="uvVarnish" onchange="calcUV()"> Печать с использованием лака (+15%)</label>
+                        <label class="checkbox-row"><input type="checkbox" id="uvWhite" onchange="calcUV()"> Печать с использованием белой подложки (+15%)</label>
+                        <label class="checkbox-row"><input type="checkbox" id="uvSpecialMaterial" onchange="calcUV()"> Металлические предметы, софт-тач, стекло (+30%)</label>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 10px;">
+                        <label>Упаковка / распаковка в исходную тару заказчика</label>
+                        <label class="checkbox-row"><input type="checkbox" id="uvPackCheck" onchange="calcUV()"> Требуется упаковка (7.5 ₽/шт)</label>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="section-title">Итоговый расчет УФ-печати</div>
+                    <div class="results-box" style="display: flex; flex-direction: column; gap: 10px;">
+                        <div class="result-item">
+                            <span>Площадь 1 изделия:</span>
+                            <span id="resUvArea" class="result-value">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span>Категория по площади:</span>
+                            <span id="resUvCategory" class="result-value">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span>Цена за 1 шт. (с наценками):</span>
+                            <span id="resUvPerItem" class="result-value">0.00 ₽</span>
+                        </div>
+                        <div class="result-item">
+                            <span>Стоимость печати тиража:</span>
+                            <span id="resUvPrintSum" class="result-value">0.00 ₽</span>
+                        </div>
+                        <div class="result-item">
+                            <span>Стоимость упаковки:</span>
+                            <span id="resUvPackSum" class="result-value">0.00 ₽</span>
+                        </div>
+                        <div class="result-item" style="border-top: 1px solid var(--border); padding-top: 10px; font-size: 16px;">
+                            <span>Общая стоимость заказа:</span>
+                            <span id="resUvTotalSum" class="result-value" style="font-size: 18px;">0.00 ₽</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Вкладка 9: DTF-печать -->
+        <div id="dtfTab" class="tab-pane">
+            <div class="page-title">DTF-печать (Ширина полотна 60 см)</div>
+            <div class="hint">Печать рассчитывается в погонных метрах. Минимальная сумма заказа на DTF-печать — 1700 рублей.</div>
+            
+            <div class="grid-2">
+                <div class="card" style="display: flex; flex-direction: column; gap: 14px;">
+                    <div class="section-title">Параметры печати</div>
+                    
+                    <div class="input-row">
+                        <div class="form-group">
+                            <label>Ширина макета (мм)</label>
+                            <input type="number" id="dtfW" value="500" oninput="calcDTF()">
+                            <div class="hint">Ширина полотна 600 мм</div>
+                        </div>
+                        <div class="form-group">
+                            <label>Высота макета (мм)</label>
+                            <input type="number" id="dtfH" value="300" oninput="calcDTF()">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Тираж (шт.)</label>
+                        <input type="number" id="dtfQty" value="5" min="1" oninput="calcDTF()">
+                    </div>
+
+                    <div class="section-title" style="margin-top: 10px;">Термоперенос на изделие</div>
+                    
+                    <div class="form-group">
+                        <label class="checkbox-row"><input type="checkbox" id="dtfTransferCheck" onchange="calcDTF()"> Требуется термоперенос на изделие</label>
+                    </div>
+                    <div class="form-group">
+                        <label>Количество прижимов (обычно равно тиражу)</label>
+                        <input type="number" id="dtfPressQty" value="5" min="0" oninput="calcDTF()">
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="section-title">Калькуляция стоимости DTF</div>
+                    <div class="results-box" style="display: flex; flex-direction: column; gap: 10px;">
+                        <div class="result-item">
+                            <span>Размещение по ширине рулона (60 см):</span>
+                            <span id="resDtfCols" class="result-value">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span>Погонные метры (полотна):</span>
+                            <span id="resDtfLinear" class="result-value">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span>Примененная цена за пог. м:</span>
+                            <span id="resDtfRate" class="result-value">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span>Стоимость печати (с учетом мин. суммы 1700 ₽):</span>
+                            <span id="resDtfPrintSum" class="result-value">0.00 ₽</span>
+                        </div>
+                        <div class="result-item">
+                            <span>Стоимость термопереноса:</span>
+                            <span id="resDtfTransferSum" class="result-value">0.00 ₽</span>
+                        </div>
+                        <div class="result-item" style="border-top: 1px solid var(--border); padding-top: 10px; font-size: 16px;">
+                            <span>Общая стоимость заказа:</span>
+                            <span id="resDtfTotalSum" class="result-value" style="font-size: 18px;">0.00 ₽</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Вкладка 10: Тампопечать и шелкография -->
+        <div id="tamponSilkTab" class="tab-pane">
+            <div class="page-title">Тампопечать, Шелкография и Пакеты ПВД</div>
+            <div class="hint">Выберите тип нанесения и настройте параметры заказа.</div>
+            
+            <div class="grid-2">
+                <div class="card" style="display: flex; flex-direction: column; gap: 14px;">
+                    <div class="section-title">Параметры заказа</div>
+                    
+                    <div class="form-group">
+                        <label>Вид печати</label>
+                        <select id="tsType" onchange="onTsTypeChange(); calcTS();">
+                            <option value="tampon">1. Тампонная печать</option>
+                            <option value="silk_material">2. Шелкография на материалах</option>
+                            <option value="pvd_bags">3. Пакеты ПВД с шелкографией</option>
+                        </select>
+                    </div>
+
+                    <!-- Настройки для Тампопечати -->
+                    <div id="tsTamponBox" style="display: flex; flex-direction: column; gap: 14px;">
+                        <div class="form-group">
+                            <label>Количество цветов</label>
+                            <select id="tsTamponColors" onchange="calcTS()">
+                                <option value="1" selected>Один цвет</option>
+                                <option value="2">Два цвета</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Тираж (шт.)</label>
+                            <input type="number" id="tsTamponQty" value="100" min="1" oninput="calcTS()">
+                        </div>
+                        <div class="section-title" style="margin-top: 6px;">Дополнительно (Тампопечать)</div>
+                        <div class="form-group" style="display: flex; flex-direction: column; gap: 6px;">
+                            <label class="checkbox-row"><input type="checkbox" id="tsColorChange" onchange="calcTS()"> Смена цвета в тираже (700 ₽)</label>
+                            <label class="checkbox-row"><input type="checkbox" id="tsItemChange" onchange="calcTS()"> Смена изделия (500 ₽)</label>
+                            <label class="checkbox-row"><input type="checkbox" id="tsPack" onchange="calcTS()"> Распаковка/упаковка (7.5 ₽/шт)</label>
+                            <label class="checkbox-row"><input type="checkbox" id="tsPantone" onchange="calcTS()"> Подбор цвета по Pantone (1000 ₽)</label>
+                        </div>
+                    </div>
+
+                    <!-- Настройки для Шелкографии на материалах -->
+                    <div id="tsSilkBox" style="display: none; flex-direction: column; gap: 14px;">
+                        <div class="form-group">
+                            <label>Формат материала</label>
+                            <select id="tsSilkFormat" onchange="calcTS()">
+                                <option value="A4" selected>A4</option>
+                                <option value="A3">A3</option>
+                                <option value="A2">A2</option>
+                            </select>
+                        </div>
+                        <div class="input-row">
+                            <div class="form-group">
+                                <label>Количество основных цветов (1 цвет)</label>
+                                <input type="number" id="tsSilkCol1" value="1" min="1" max="1" disabled>
+                            </div>
+                            <div class="form-group">
+                                <label>Дополнительные цвета (шт.)</label>
+                                <input type="number" id="tsSilkAddColors" value="0" min="0" oninput="calcTS()">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Тираж (шт.)</label>
+                            <input type="number" id="tsSilkQty" value="200" min="1" oninput="calcTS()">
+                        </div>
+                        <div class="form-group">
+                            <label class="checkbox-row"><input type="checkbox" id="tsSilkPantone" onchange="calcTS()"> Подбор цвета по Pantone (1000 ₽/цвет)</label>
+                        </div>
+                    </div>
+
+                    <!-- Настройки для Пакеты ПВД -->
+                    <div id="tsPvdBox" style="display: none; flex-direction: column; gap: 14px;">
+                        <div class="form-group">
+                            <label>Размер пакета</label>
+                            <select id="tsPvdSize" onchange="calcTS()">
+                                <option value="3040" selected>30×40 см (поле печати 25×25 см)</option>
+                                <option value="4050">40×50 см (поле печати 30×35 см)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Тип и толщина пакета</label>
+                            <select id="tsPvdMaterial" onchange="calcTS()">
+                                <option value="pvd_w50">ПВД Белый 50 мкм</option>
+                                <option value="pvd_w80">ПВД Белый 80 мкм</option>
+                                <option value="pvd_color">ПВД Цветной (зеленый/красный/желтый) 50 мкм</option>
+                                <option value="coex_white">КОЭКС (многослойный) Белый 60 мкм</option>
+                                <option value="coex_blue">КОЭКС Синий 60 мкм</option>
+                                <option value="coex_black">КОЭКС Черный 60 мкм</option>
+                                <option value="coex_bord">КОЭКС Бордовый 60 мкм</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Цветность печати</label>
+                            <select id="tsPvdColors" onchange="calcTS()">
+                                <option value="1_0" selected>1+0</option>
+                                <option value="2_0_1_1">2+0 / 1+1</option>
+                                <option value="3_0_2_1">3+0 / 2+1</option>
+                                <option value="2_2_3_1">2+2 / 3+1</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Тираж (шт.)</label>
+                            <input type="number" id="tsPvdQty" value="100" min="1" oninput="calcTS()">
+                        </div>
+                        <div class="form-group">
+                            <label class="checkbox-row"><input type="checkbox" id="tsPvdPantone" onchange="calcTS()"> Подбор цвета по Pantone (1000 ₽/цвет)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="section-title">Калькуляция стоимости</div>
+                    <div class="results-box" style="display: flex; flex-direction: column; gap: 10px;">
+                        <div class="result-item">
+                            <span>Тираж / Примененная база:</span>
+                            <span id="resTsQty" class="result-value">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span>Стоимость печати / нанесения:</span>
+                            <span id="resTsPrintSum" class="result-value">0.00 ₽</span>
+                        </div>
+                        <div class="result-item">
+                            <span>Стоимость пакетов (если применимо):</span>
+                            <span id="resTsBagsSum" class="result-value">0.00 ₽</span>
+                        </div>
+                        <div class="result-item">
+                            <span>Наценки и доп. работы:</span>
+                            <span id="resTsExtraSum" class="result-value">0.00 ₽</span>
+                        </div>
+                        <div class="result-item" style="border-top: 1px solid var(--border); padding-top: 10px; font-size: 16px;">
+                            <span>Итого стоимость заказа:</span>
+                            <span id="resTsTotalSum" class="result-value" style="font-size: 18px;">0.00 ₽</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    const formatsData = [
+        { name: 'SRA3', w: 450, h: 320 },
+        { name: 'A0', w: 1189, h: 841 },
+        { name: 'A1', w: 841, h: 594 },
+        { name: 'A2', w: 594, h: 420 },
+        { name: 'A3', w: 420, h: 297 },
+        { name: 'A4', w: 297, h: 210 },
+        { name: 'A5', w: 210, h: 148 },
+        { name: 'A6', w: 148, h: 105 }
+    ];
+
+    function initReferenceTable() {
+        const tbody = document.getElementById('refTableBody');
+        tbody.innerHTML = '';
+        formatsData.forEach(f => {
+            const areaSqM = ((f.w * f.h) / 1000000).toFixed(4);
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td><strong>${f.name}</strong></td><td>${f.w} мм</td><td>${f.h} мм</td><td>${areaSqM} кв. м</td>`;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function switchTab(evt, tabId) {
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+        
+        evt.currentTarget.classList.add('active');
+        document.getElementById(tabId).classList.add('active');
+
+        if(tabId === 'sheetTab') calculateSheet();
+        if(tabId === 'meterageTab') calculateMeterage();
+        if(tabId === 'postpressTab') calcPostpress();
+        if(tabId === 'digitalTab') calcDigital();
+        if(tabId === 'interiorTab') calcInterior();
+        if(tabId === 'wideTab') calcWide();
+        if(tabId === 'uvTab') calcUV();
+        if(tabId === 'dtfTab') calcDTF();
+        if(tabId === 'tamponSilkTab') calcTS();
+    }
+
+    const interiorData = {
+        'mimaki': [
+            { name: 'Пленка самоклеящаяся (Германия)', p720: 830, p1440: 1050, desc: 'внутренняя и наружная реклама, брендирование витрин, автомобилей, изготовление табличек' },
+            { name: 'Печать на самоклейке с подрезкой по контуру', p720: 1380, p1440: 1600, desc: 'внутренняя и наружная реклама, выполнение аппликаций, брендирование витрин, сувениров, наклеек' },
+            { name: 'Пленка самоклеящаяся (Китай)', p720: 660, p1440: 880, desc: 'для краткосрочного нанесения, внутренняя и наружная реклама, брендирование витрин' },
+            { name: 'Баннер "Китай" ламинированный 440г', p720: 660, p1440: 880, desc: 'внутренняя и наружная реклама (темп. до -10°С), мобильные стенды, перетяжки, брандмауэры' },
+            { name: 'Баннер "Европа" литой 510г', p720: 720, p1440: 940, desc: 'внутренняя и наружная реклама (темп. до -35°С), мобильные стенды, световые короба' },
+            { name: 'Бумага "Блюбек" 115г', p720: 500, p1440: 720, desc: 'внутренняя и наружная реклама, световые короба, лайтбоксы, постеры, плакаты, афиши, картины' },
+            { name: 'Бумага постерная 150г (Испания)', p720: 610, p1440: 830, desc: 'внутренняя и наружная реклама, световые короба, лайтбоксы, постеры, ситиформаты' },
+            { name: 'Бумага ScrollJet (полипропиленовая)', p720: 880, p1440: 1100, desc: 'внутренняя и наружная реклама, скроллеры, световые короба, лайтбоксы, ситиформаты' },
+            { name: 'Пленка светопропускающая Backlite', p720: 1210, p1440: 1430, desc: 'внутренняя и наружная реклама, световые короба, световые панели' },
+            { name: 'Пленка самоклеящаяся перфорированная', p720: 830, p1440: 1050, desc: 'внутренняя и наружная реклама, брендирование витрин, окон' },
+            { name: 'Пленка световозвращающая (Германия)', p720: 2200, p1440: 2420, desc: 'изготовление знаков, табличек, указателей со светоотражающим эффектом' },
+            { name: 'Баннер светопропускающий литой 510г', p720: 1050, p1440: 1270, desc: 'внутренняя и наружная реклама, световые короба, оформление интерьеров' },
+            { name: 'Холст 360г (натуральный хлопок)', p720: 1650, p1440: 1870, desc: 'внутренняя реклама, высокохудожественные работы, оформление интерьеров, картины' },
+            { name: 'Пленка Neschen EasyDot 100 (Германия)', p720: 1210, p1440: 1430, desc: 'пленка для легкого и быстрого нанесения без пузырей и легкого удаления без следов' },
+            { name: 'Фотобумага 220г глянец/шелк', p720: 880, p1440: 1100, desc: 'внутренняя реклама, высокохудожественные работы, оформление интерьеров, картины' },
+            { name: 'Таблички на пластике 3 мм', p720: 2200, p1440: 2420, desc: 'внутренняя и наружная реклама, изготовление табличек, указателей, вывесок' },
+            { name: 'Таблички на пластике 5 мм', p720: 2750, p1440: 2970, desc: 'внутренняя и наружная реклама, изготовление табличек, указателей, вывесок' }
+        ],
+        'latex': [
+            { name: 'Пленка самоклеящаяся (Германия)', p720: 1050, p1440: 1270, desc: 'внутренняя и наружная реклама, брендирование витрин, автомобилей, изготовление табличек' },
+            { name: 'Печать на самоклейке с подрезкой по контуру', p720: 1600, p1440: 1820, desc: 'внутренняя и наружная реклама, выполнение аппликаций, сувениров, наклеек' },
+            { name: 'Пленка самоклеящаяся (Китай)', p720: 880, p1440: 1100, desc: 'для краткосрочного нанесения, внутренняя и наружная реклама, брендирование витрин' },
+            { name: 'Баннер "Китай" ламинированный 440г', p720: 880, p1440: 1100, desc: 'внутренняя и наружная реклама, мобильные стенды, перетяжки, брандмауэры' },
+            { name: 'Баннер "Европа" литой 510г', p720: 940, p1440: 1160, desc: 'внутренняя и наружная реклама, мобильные стенды, световые короба' },
+            { name: 'Бумага "Блюбек" 115г', p720: 720, p1440: 940, desc: 'внутренняя и наружная реклама, световые короба, лайтбоксы, постеры, плакаты, афиши' },
+            { name: 'Бумага постерная 150г (Испания)', p720: 830, p1440: 1050, desc: 'внутренняя и наружная реклама, световые короба, лайтбоксы, постеры' },
+            { name: 'Бумага ScrollJet (полипропиленовая)', p720: 1100, p1440: 1320, desc: 'внутренняя и наружная реклама, скроллеры, световые короба, ситиформаты' },
+            { name: 'Пленка светопропускающая Backlite', p720: 1430, p1440: 1650, desc: 'внутренняя и наружная реклама, световые короба, световые панели' },
+            { name: 'Пленка самоклеящаяся перфорированная', p720: 1050, p1440: 1270, desc: 'внутренняя и наружная реклама, брендирование витрин, окон' },
+            { name: 'Пленка световозвращающая (Германия)', p720: 2420, p1440: 2640, desc: 'изготовление знаков, табличек, указателей со светоотражающим эффектом' },
+            { name: 'Баннер светопропускающий литой 510г', p720: 1270, p1440: 1490, desc: 'внутренняя и наружная реклама, световые короба, оформление интерьеров' },
+            { name: 'Холст 360г (натуральный хлопок)', p720: 1870, p1440: 1980, desc: 'внутренняя реклама, высокохудожественные работы, оформление интерьеров' },
+            { name: 'Пленка Neschen EasyDot 100 (Германия)', p720: 1430, p1440: 1650, desc: 'пленка для легкого и быстрого нанесения без пузырей' },
+            { name: 'Фотобумага 220г глянец/шелк', p720: 1100, p1440: 1320, desc: 'внутренняя реклама, высокохудожественные работы, оформление интерьеров' },
+            { name: 'Таблички на пластике 3 мм', p720: 2420, p1440: 2640, desc: 'внутренняя и наружная реклама, изготовление табличек, указателей' },
+            { name: 'Таблички на пластике 5 мм', p720: 2970, p1440: 3190, desc: 'внутренняя и наружная реклама, изготовление табличек, указателей' }
+        ],
+        'lam_mount': [
+            { name: 'Защитная ламинация прозр. пленкой (Германия)', rate: 390, desc: 'Ширина до 1,52м' },
+            { name: 'Защитная ламинация прозр. пленкой (Китай)', rate: 330, desc: 'Ширина до 1,52м' },
+            { name: 'Накатка пленки', rate: 550, desc: 'Накатка пленки на ровную поверхность' },
+            { name: 'Накатка пленки на пластик 3мм (накатка + пластик 3мм)', rate: 1380, desc: 'Готовое изделие на пластике 3мм' },
+            { name: 'Накатка пленки на пластик 5мм (накатка + пластик 5мм)', rate: 1930, desc: 'Готовое изделие на пластике 5мм' },
+            { name: 'Монтажная пленка без накатки', rate: 280, desc: 'Монтажная пленка' },
+            { name: 'Монтажная пленка с выборкой (чисткой) и накаткой', rate: 830, desc: 'С выборкой и накаткой' },
+            { name: 'Монтажная пленка с выборкой и накаткой (мелкие элементы до 1 см)', rate: 1160, desc: 'Для мелких элементов' }
+        ],
+        'plotter': [
+            { name: 'Резка пленки (крупные элементы)', rate: 550, desc: 'Плоттерная резка крупных элементов' },
+            { name: 'Резка пленки (средние элементы до 10 см)', rate: 660, desc: 'Плоттерная резка элементов до 10 см' },
+            { name: 'Резка пленки (мелкие элементы до 1 см)', rate: 880, desc: 'Плоттерная резка мелких элементов' },
+            { name: 'Печать на пленке с контурной подрезкой (720dpi, экосольвент)', rate: 1380, desc: 'Печать с контурной подрезкой' },
+            { name: 'Пленка Orajet (глянцевая, матовая, белая, прозрачная)', rate: 390, desc: 'Материал Orajet без печати' },
+            { name: 'Пленка Oracal 641 (белая)', rate: 500, desc: 'Пленка Oracal 641 белая' },
+            { name: 'Пленка Oracal 641 (цветная)', rate: 700, desc: 'Пленка Oracal 641 цветная' }
+        ]
+    };
+
+    const wideData = [
+        { name: 'Пленка самоклеящаяся (Германия)', p360_1: 500, p360_2: 440, p720_1: 580, p720_2: 520, desc: 'внутренняя и наружная реклама, брендирование витрин, автомобилей, изготовление табличек' },
+        { name: 'Пленка самоклеящаяся (Китай)', p360_1: 390, p360_2: 360, p720_1: 470, p720_2: 420, desc: 'для короткосрочного нанесения, внутренняя и наружная реклама, брендирование витрин' },
+        { name: 'Пленка самоклеящаяся перфорированная (one way vision)', p360_1: 500, p360_2: 440, p720_1: 580, p720_2: 520, desc: 'внутренняя и наружная реклама, брендирование витрин, окон' },
+        { name: 'Баннер ламинированный "Китай" 280г', p360_1: 310, p360_2: 280, p720_1: 370, p720_2: 330, desc: 'внутренняя и наружная реклама (темп. экспл. до 0°С), мобильные стенды, брандмауэры' },
+        { name: 'Баннер ламинированный "Китай" 440г', p360_1: 400, p360_2: 360, p720_1: 480, p720_2: 430, desc: 'внутренняя и наружная реклама (темп. экспл. до -10°С), мобильные стенды, перетяжки' },
+        { name: 'Баннер ламинированный усиленный "Корея" 440г', p360_1: 420, p360_2: 380, p720_1: 500, p720_2: 460, desc: 'внутренняя и наружная реклама (темп. экспл. до -20°С), мобильные стенды, световые короба' },
+        { name: 'Баннер литой "Европа" 460г', p360_1: 440, p360_2: 400, p720_1: 530, p720_2: 480, desc: 'внутренняя и наружная реклама (темп. экспл. до -25°С), щиты 3х6 метров, мобильные стенды' },
+        { name: 'Баннер транслюцентный литой 510г', p360_1: 550, p360_2: 470, p720_1: 640, p720_2: 500, desc: 'внутренняя и наружная реклама, для задней подсветки, световые короба, лайтбоксы' },
+        { name: 'Бумага "Блюбек" 115г', p360_1: 280, p360_2: 260, p720_1: 330, p720_2: 300, desc: 'внутренняя и наружная реклама, щиты 3х6 метра, постеры, плакаты, афиши, ситиформаты' },
+        { name: 'Бумага постерная 150г', p360_1: 310, p360_2: 280, p720_1: 380, p720_2: 330, desc: 'внутренняя и наружная реклама, световые короба, лайтбоксы, постеры, плакаты' },
+        { name: 'Бумага скроллерная ScrollJet (полипропиленовая)', p360_1: 610, p360_2: 540, p720_1: 720, p720_2: 650, desc: 'внутренняя и наружная реклама, скроллеры, световые короба, лайтбоксы, ситиборды' },
+        { name: 'Сетка строительная 370г', p360_1: 390, p360_2: 360, p720_1: 470, p720_2: 420, desc: 'внутренняя и наружная реклама, брендирование фасадов, витрин, балконов' }
+    ];
+
+    const uvTiers = [
+        { maxQty: 19, minBatch: [1800, 2000, 3200, 3900, 3900, 4800], unitPrices: null },
+        { maxQty: 49, unitPrices: [48.00, 75.00, 166.00, 190.00, 208.00, 249.00] },
+        { maxQty: 99, unitPrices: [41.00, 48.00, 154.00, 164.00, 172.00, 224.00] },
+        { maxQty: 299, unitPrices: [33.00, 40.00, 134.00, 155.00, 171.00, 200.00] },
+        { maxQty: 499, unitPrices: [28.00, 33.00, 117.00, 139.00, 154.00, 162.00] },
+        { maxQty: 799, unitPrices: [19.00, 25.00, 106.00, 145.00, 129.00, 142.00] },
+        { maxQty: 999, unitPrices: [16.00, 21.00, 96.00, 114.00, 119.00, 130.00] },
+        { maxQty: 1999, unitPrices: [14.00, 19.00, 62.00, 93.00, 105.00, 123.00] },
+        { maxQty: 3000, unitPrices: [11.00, 16.00, 45.00, 76.00, 79.00, 89.00] }
+    ];
+
+    function getUvAreaCol(areaSqCm) {
+        if (areaSqCm <= 10) return 0;
+        if (areaSqCm <= 50) return 1;
+        if (areaSqCm <= 100) return 2;
+        if (areaSqCm <= 180) return 3;
+        if (areaSqCm <= 300) return 4;
+        if (areaSqCm <= 600) return 5;
+        return -1;
+    }
+
+    function calcUV() {
+        const wMm = parseFloat(document.getElementById('uvW').value) || 0;
+        const hMm = parseFloat(document.getElementById('uvH').value) || 0;
+        const qty = parseInt(document.getElementById('uvQty').value) || 0;
+
+        const useVarnish = document.getElementById('uvVarnish').checked;
+        const useWhite = document.getElementById('uvWhite').checked;
+        const useSpecial = document.getElementById('uvSpecialMaterial').checked;
+        const usePack = document.getElementById('uvPackCheck').checked;
+
+        if (wMm <= 0 || hMm <= 0 || qty <= 0) {
+            document.getElementById('resUvArea').innerText = '-';
+            document.getElementById('resUvCategory').innerText = '-';
+            document.getElementById('resUvPerItem').innerText = '0.00 ₽';
+            document.getElementById('resUvPrintSum').innerText = '0.00 ₽';
+            document.getElementById('resUvPackSum').innerText = '0.00 ₽';
+            document.getElementById('resUvTotalSum').innerText = '0.00 ₽';
+            return;
+        }
+
+        const areaSqCm = (wMm * hMm) / 100;
+        const colIdx = getUvAreaCol(areaSqCm);
+
+        document.getElementById('resUvArea').innerText = `${areaSqCm.toFixed(1)} см²`;
+
+        if (colIdx === -1) {
+            document.getElementById('resUvCategory').innerText = 'Более 600 см² (индивидуально)';
+            document.getElementById('resUvPerItem').innerText = 'Индивидуально';
+            document.getElementById('resUvPrintSum').innerText = 'Индивидуально';
+            document.getElementById('resUvPackSum').innerText = '0.00 ₽';
+            document.getElementById('resUvTotalSum').innerText = 'Индивидуально';
+            return;
+        }
+
+        const categoryNames = ['до 10 см²', 'от 10 до 50 см²', 'от 50 до 100 см²', 'от 100 до 180 см²', 'от 180 до 300 см²', 'от 300 до 600 см²'];
+        document.getElementById('resUvCategory').innerText = categoryNames[colIdx];
+
+        let tierObj = uvTiers.find(t => qty <= t.maxQty);
+        if (!tierObj) tierObj = uvTiers[uvTiers.length - 1];
+
+        let basePricePerItem = 0;
+        let batchSum = 0;
+
+        if (qty <= 19 && tierObj.minBatch) {
+            batchSum = tierObj.minBatch[colIdx];
+            basePricePerItem = batchSum / qty;
+        } else {
+            basePricePerItem = tierObj.unitPrices[colIdx];
+            batchSum = basePricePerItem * qty;
+        }
+
+        let markupMultiplier = 1.0;
+        if (useVarnish) markupMultiplier += 0.15;
+        if (useWhite) markupMultiplier += 0.15;
+        if (useSpecial) markupMultiplier += 0.30;
+
+        const finalPricePerItem = basePricePerItem * markupMultiplier;
+        const finalPrintSum = finalPricePerItem * qty;
+
+        const packSum = usePack ? qty * 7.5 : 0;
+        const grandTotal = finalPrintSum + packSum;
+
+        document.getElementById('resUvPerItem').innerText = finalPricePerItem.toFixed(2) + ' ₽';
+        document.getElementById('resUvPrintSum').innerText = finalPrintSum.toFixed(2) + ' ₽';
+        document.getElementById('resUvPackSum').innerText = packSum.toFixed(2) + ' ₽';
+        document.getElementById('resUvTotalSum').innerText = grandTotal.toFixed(2) + ' ₽';
+    }
+
+    function calcDTF() {
+        const wMm = parseFloat(document.getElementById('dtfW').value) || 0;
+        const hMm = parseFloat(document.getElementById('dtfH').value) || 0;
+        const qty = parseInt(document.getElementById('dtfQty').value) || 0;
+
+        const useTransfer = document.getElementById('dtfTransferCheck').checked;
+        const pressQty = parseInt(document.getElementById('dtfPressQty').value) || 0;
+
+        const rollWidthMm = 600;
+
+        if (wMm <= 0 || hMm <= 0 || qty <= 0) {
+            document.getElementById('resDtfCols').innerText = '-';
+            document.getElementById('resDtfLinear').innerText = '-';
+            document.getElementById('resDtfRate').innerText = '-';
+            document.getElementById('resDtfPrintSum').innerText = '0.00 ₽';
+            document.getElementById('resDtfTransferSum').innerText = '0.00 ₽';
+            document.getElementById('resDtfTotalSum').innerText = '0.00 ₽';
+            return;
+        }
+
+        const cols = Math.floor(rollWidthMm / wMm);
+        const effectiveCols = cols > 0 ? cols : 1;
+        const rows = Math.ceil(qty / effectiveCols);
+        const linearMeters = (rows * hMm) / 1000;
+
+        let ratePerM = 1800;
+        if (linearMeters > 30) {
+            ratePerM = 0;
+        } else if (linearMeters >= 20) {
+            ratePerM = 1250;
+        } else if (linearMeters >= 10) {
+            ratePerM = 1600;
+        }
+
+        let printSum = 0;
+        if (ratePerM > 0) {
+            printSum = linearMeters * ratePerM;
+            if (printSum < 1700) printSum = 1700;
+        } else {
+            printSum = 0;
+        }
+
+        let transferSum = 0;
+        if (useTransfer && pressQty > 0) {
+            const pressRate = pressQty < 20 ? 110 : 65;
+            transferSum = pressQty * pressRate;
+        }
+
+        const grandTotal = (ratePerM > 0) ? (printSum + transferSum) : 0;
+
+        document.getElementById('resDtfCols').innerText = `${effectiveCols} шт. в ряд по ширине`;
+        document.getElementById('resDtfLinear').innerText = `${linearMeters.toFixed(3)} пог. м`;
+        document.getElementById('resDtfRate').innerText = ratePerM > 0 ? `${ratePerM} ₽/пог. м` : 'Индивидуальная цена ( > 30 м)';
+        document.getElementById('resDtfPrintSum').innerText = ratePerM > 0 ? (printSum.toFixed(2) + ' ₽ (мин. 1700 ₽)') : 'Индивидуально';
+        document.getElementById('resDtfTransferSum').innerText = transferSum.toFixed(2) + ' ₽';
+        document.getElementById('resDtfTotalSum').innerText = ratePerM > 0 ? (grandTotal.toFixed(2) + ' ₽') : 'Индивидуально';
+    }
+
+    const tamponTiers = [
+        { qty: 50, c1: 60, c2: 113 },
+        { qty: 100, c1: 38, c2: 67 },
+        { qty: 200, c1: 25, c2: 44 },
+        { qty: 300, c1: 20, c2: 33 },
+        { qty: 400, c1: 18, c2: 30 },
+        { qty: 500, c1: 15, c2: 25 },
+        { qty: 600, c1: 14, c2: 23 },
+        { qty: 700, c1: 14, c2: 22 },
+        { qty: 800, c1: 13, c2: 21 },
+        { qty: 900, c1: 13, c2: 21 },
+        { qty: 1000, c1: 12, c2: 19 },
+        { qty: 2000, c1: 11, c2: 15 },
+        { qty: 3000, c1: 9, c2: 13 },
+        { qty: 4000, c1: 8, c2: 13 },
+        { qty: 5000, c1: 7, c2: 11 },
+        { qty: 10000, c1: 6, c2: 9 }
+    ];
+
+    const silkMaterialTiers = [
+        { qty: 100, a4_1: 38, a4_add: 33, a3_1: 61, a3_add: 52, a2_1: 101, a2_add: 85 },
+        { qty: 200, a4_1: 27, a4_add: 22, a3_1: 44, a3_add: 38, a2_1: 79, a2_add: 65 },
+        { qty: 300, a4_1: 24, a4_add: 19, a3_1: 40, a3_add: 33, a2_1: 70, a2_add: 57 },
+        { qty: 500, a4_1: 20, a4_add: 17, a3_1: 35, a3_add: 29, a2_1: 62, a2_add: 51 },
+        { qty: 1000, a4_1: 18, a4_add: 15, a3_1: 31, a3_add: 26, a2_1: 54, a2_add: 44 },
+        { qty: 2000, a4_1: 17, a4_add: 13, a3_1: 30, a3_add: 25, a2_1: 51, a2_add: 41 },
+        { qty: 3000, a4_1: 16, a4_add: 13, a3_1: 29, a3_add: 24, a2_1: 50, a2_add: 40 },
+        { qty: 5000, a4_1: 15, a4_add: 13, a3_1: 27, a3_add: 22, a2_1: 48, a2_add: 39 }
+    ];
+
+    const pvdPrintTiers = [
+        { qty: 50, c1: 57, c2: 109, c3: 159, c4: 205 },
+        { qty: 100, c1: 35, c2: 68, c3: 99, c4: 128 },
+        { qty: 200, c1: 25, c2: 47, c3: 68, c4: 88 },
+        { qty: 300, c1: 21, c2: 40, c3: 58, c4: 76 },
+        { qty: 400, c1: 19, c2: 37, c3: 53, c4: 69 },
+        { qty: 500, c1: 18, c2: 35, c3: 50, c4: 65 },
+        { qty: 1000, c1: 16, c2: 31, c3: 44, c4: 57 },
+        { qty: 2000, c1: 15, c2: 28, c3: 41, c4: 53 },
+        { qty: 3000, c1: 15, c2: 28, c3: 40, c4: 52 },
+        { qty: 5000, c1: 14, c2: 27, c3: 40, c4: 51 }
+    ];
+
+    const pvdBagsPrices = {
+        'pvd_w50': { '3040': 11.10, '4050': 15.00 },
+        'pvd_w80': { '3040': 14.10, '4050': 21.10 },
+        'pvd_color': { '3040': 11.10, '4050': 15.00 },
+        'coex_white': { '3040': 14.80, '4050': 27.50 },
+        'coex_blue': { '3040': 15.80, '4050': 25.10 },
+        'coex_black': { '3040': 0, '4050': 23.50 },
+        'coex_bord': { '3040': 14.80, '4050': 23.50 }
+    };
+
+    function onTsTypeChange() {
+        const val = document.getElementById('tsType').value;
+        document.getElementById('tsTamponBox').style.display = (val === 'tampon') ? 'flex' : 'none';
+        document.getElementById('tsSilkBox').style.display = (val === 'silk_material') ? 'flex' : 'none';
+        document.getElementById('tsPvdBox').style.display = (val === 'pvd_bags') ? 'flex' : 'none';
+        calcTS();
+    }
+
+    function getClosestTier(qty, list, qtyKey) {
+        let found = list[0];
+        for (let item of list) {
+            if (qty >= item[qtyKey]) {
+                found = item;
+            } else {
+                break;
+            }
+        }
+        return found;
+    }
+
+    function calcTS() {
+        const type = document.getElementById('tsType').value;
+        let printSum = 0;
+        let extraSum = 0;
+        let bagsSum = 0;
+        let qtyInfo = '-';
+
+        if (type === 'tampon') {
+            let qty = parseInt(document.getElementById('tsTamponQty').value) || 0;
+            if (qty < 50) qty = 50;
+            const colors = document.getElementById('tsTamponColors').value;
+
+            const tier = getClosestTier(qty, tamponTiers, 'qty');
+            const unitPrice = (colors === '1') ? tier.c1 : tier.c2;
+            printSum = unitPrice * qty;
+            qtyInfo = `${qty} шт. (тампопечать, цветов: ${colors})`;
+
+            if (document.getElementById('tsColorChange').checked) extraSum += 700;
+            if (document.getElementById('tsItemChange').checked) extraSum += 500;
+            if (document.getElementById('tsPack').checked) extraSum += qty * 7.5;
+            if (document.getElementById('tsPantone').checked) extraSum += 1000;
+
+        } else if (type === 'silk_material') {
+            let qty = parseInt(document.getElementById('tsSilkQty').value) || 0;
+            if (qty < 100) qty = 100;
+            const format = document.getElementById('tsSilkFormat').value;
+            const addColors = parseInt(document.getElementById('tsSilkAddColors').value) || 0;
+
+            const tier = getClosestTier(qty, silkMaterialTiers, 'qty');
+            let baseRate = 0, addRate = 0;
+
+            if (format === 'A4') { baseRate = tier.a4_1; addRate = tier.a4_add; }
+            else if (format === 'A3') { baseRate = tier.a3_1; addRate = tier.a3_add; }
+            else if (format === 'A2') { baseRate = tier.a2_1; addRate = tier.a2_add; }
+
+            const unitPrice = baseRate + (addColors * addRate);
+            printSum = unitPrice * qty;
+            qtyInfo = `${qty} шт. (шелкография ${format}, цветов: ${1 + addColors})`;
+
+            if (document.getElementById('tsSilkPantone').checked) {
+                extraSum += 1000 * (1 + addColors);
+            }
+
+        } else if (type === 'pvd_bags') {
+            let qty = parseInt(document.getElementById('tsPvdQty').value) || 0;
+            if (qty < 50) qty = 50;
+            const size = document.getElementById('tsPvdSize').value;
+            const matKey = document.getElementById('tsPvdMaterial').value;
+            const colorsOpt = document.getElementById('tsPvdColors').value;
+
+            const tier = getClosestTier(qty, pvdPrintTiers, 'qty');
+            let printRate = tier.c1;
+            if (colorsOpt === '2_0_1_1') printRate = tier.c2;
+            else if (colorsOpt === '3_0_2_1') printRate = tier.c3;
+            else if (colorsOpt === '2_2_3_1') printRate = tier.c4;
+
+            printSum = printRate * qty;
+
+            const bagUnitPrice = (pvdBagsPrices[matKey] && pvdBagsPrices[matKey][size]) ? pvdBagsPrices[matKey][size] : 0;
+            bagsSum = bagUnitPrice * qty;
+            qtyInfo = `${qty} шт. (пакеты ${size === '3040' ? '30x40' : '40x50'})`;
+
+            if (document.getElementById('tsPvdPantone').checked) {
+                extraSum += 1000;
+            }
+        }
+
+        const grandTotal = printSum + bagsSum + extraSum;
+
+        document.getElementById('resTsQty').innerText = qtyInfo;
+        document.getElementById('resTsPrintSum').innerText = printSum.toFixed(2) + ' ₽';
+        document.getElementById('resTsBagsSum').innerText = bagsSum.toFixed(2) + ' ₽';
+        document.getElementById('resTsExtraSum').innerText = extraSum.toFixed(2) + ' ₽';
+        document.getElementById('resTsTotalSum').innerText = grandTotal.toFixed(2) + ' ₽';
+    }
+
+    window.onload = function() {
+        initReferenceTable();
+        updateLamTypes();
+        updateBindDiameters();
+        calculateSheet();
+        calculateMeterage();
+        calcPostpress();
+        calcDigital();
+        updateInteriorMaterials();
+        initWideMaterials();
+        calcUV();
+        calcDTF();
+        calcTS();
+    };
+</script>
+
+</body>
+</html>
