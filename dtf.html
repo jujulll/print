@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DTF-печать</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --sidebar-bg: #1e293b;
+            --sidebar-text: #94a3b8;
+            --sidebar-text-hover: #ffffff;
+            --sidebar-active: #4f46e5;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #cbd5e1;
+            --radius: 12px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); height: 100vh; display: flex; overflow: hidden; }
+        .app-layout { display: flex; width: 100vw; height: 100vh; }
+        .sidebar { width: 280px; background-color: var(--sidebar-bg); display: flex; flex-direction: column; border-right: 1px solid rgba(255,255,255,0.1); flex-shrink: 0; }
+        .sidebar-brand { padding: 22px 20px; font-size: 19px; font-weight: 700; color: #ffffff; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .sidebar-menu { display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; overflow-y: auto; flex-grow: 1; }
+        .tab-btn { background: transparent; border: none; text-align: left; padding: 12px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; color: var(--sidebar-text); cursor: pointer; text-decoration: none; transition: all 0.2s; }
+        .tab-btn:hover { background: rgba(255,255,255,0.05); color: var(--sidebar-text-hover); }
+        .tab-btn.active { background: var(--sidebar-active); color: white; font-weight: 600; }
+        
+        .main-content { flex-grow: 1; background-color: var(--bg-color); padding: 22px 26px; overflow-y: auto; display: flex; flex-direction: column; justify-content: space-between; max-width: 1250px; margin: 0 auto; width: 100%; }
+        .page-title { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .card { background: var(--card-bg); border-radius: var(--radius); border: 1px solid var(--border); padding: 18px 22px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+        
+        .section-title { font-size: 15px; font-weight: 600; color: var(--text-main); margin-bottom: 12px; }
+        label { display: block; font-size: 12px; font-weight: 500; color: var(--text-muted); margin-bottom: 5px; }
+        input { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; background: #fff; }
+        
+        .form-group { margin-bottom: 14px; }
+        .form-group:last-child { margin-bottom: 0; }
+        .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .hint { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+        .checkbox-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--text-main);
+            cursor: pointer;
+            margin-top: 8px;
+        }
+        .checkbox-row input { width: auto; }
+
+        .results-box { background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+        .result-item { display: flex; justify-content: space-between; font-size: 13px; }
+        .result-value { font-weight: 700; color: var(--primary); }
+    </style>
+</head>
+<body>
+
+<div class="app-layout">
+    <!-- Левое меню -->
+    <div class="sidebar">
+        <div class="sidebar-brand">Калькулятор типографии</div>
+        <div class="sidebar-menu">
+            <a href="index.html" class="tab-btn">1. Справочник форматов</a>
+            <a href="sheet.html" class="tab-btn">2. Вместимость листа</a>
+            <a href="meterage.html" class="tab-btn">3. Расчет метража</a>
+            <a href="postpress.html" class="tab-btn">4. Постпресс</a>
+            <a href="digital.html" class="tab-btn">5. Цифровая печать</a>
+            <a href="interior.html" class="tab-btn">6. Интерьерная печать</a>
+            <a href="wide.html" class="tab-btn">7. Широкоформатная печать</a>
+            <a href="uv.html" class="tab-btn">8. УФ-печать</a>
+            <a href="dtf.html" class="tab-btn active">9. DTF-печать</a>
+            <a href="tampon_silk.html" class="tab-btn">10. Тампопечать и шелкография</a>
+        </div>
+    </div>
+
+    <!-- Основной контент -->
+    <div class="main-content">
+        <div>
+            <div class="page-title">DTF-печать (Ширина полотна 60 см)</div>
+            <div class="hint" style="margin-bottom: 16px;">Печать рассчитывается в погонных метрах. Минимальная сумма заказа на DTF-печать — 1700 рублей.</div>
+            
+            <div class="grid-2">
+                <div class="card" style="display: flex; flex-direction: column; gap: 14px;">
+                    <div class="section-title">Параметры печати</div>
+                    
+                    <div class="input-row">
+                        <div class="form-group">
+                            <label>Ширина макета (мм)</label>
+                            <input type="number" id="dtfW" value="500" oninput="calcDTF()">
+                            <div class="hint">Ширина рулона 600 мм</div>
+                        </div>
+                        <div class="form-group">
+                            <label>Высота макета (мм)</label>
+                            <input type="number" id="dtfH" value="300" oninput="calcDTF()">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Тираж (шт.)</label>
+                        <input type="number" id="dtfQty" value="5" min="1" oninput="calcDTF()">
+                    </div>
+
+                    <div class="section-title" style="margin-top: 10px;">Термоперенос на изделие</div>
+                    
+                    <div class="form-group">
+                        <label class="checkbox-row"><input type="checkbox" id="dtfTransferCheck" onchange="calcDTF()"> Требуется термоперенос на изделие</label>
+                    </div>
+                    <div class="form-group">
+                        <label>Количество прижимов (обычно равно тиражу)</label>
+                        <input type="number" id="dtfPressQty" value="5" min="0" oninput="calcDTF()">
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="section-title">Калькуляция стоимости DTF</div>
+                    <div class="results-box">
+                        <div class="result-item"><span>Размещение по ширине рулона (60 см):</span><span id="resDtfCols" class="result-value">-</span></div>
+                        <div class="result-item"><span>Погонные метры (полотна):</span><span id="resDtfLinear" class="result-value">-</span></div>
+                        <div class="result-item"><span>Примененная цена за пог. м:</span><span id="resDtfRate" class="result-value">1800 ₽ / м</span></div>
+                        <div class="result-item"><span>Стоимость печати (с учетом мин. суммы 1700 ₽):</span><span id="resDtfPrintSum" class="result-value">0.00 ₽</span></div>
+                        <div class="result-item"><span>Стоимость термопереноса:</span><span id="resDtfTransferSum" class="result-value">0.00 ₽</span></div>
+                        <div class="result-item" style="border-top: 1px solid var(--border); padding-top: 10px; font-size: 16px;">
+                            <span>Общая стоимость заказа:</span><span id="resDtfTotalSum" class="result-value" style="font-size: 18px;">0.00 ₽</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div></div>
+    </div>
+</div>
+
+<script>
+    function calcDTF() {
+        const wMm = parseFloat(document.getElementById('dtfW').value) || 0;
+        const hMm = parseFloat(document.getElementById('dtfH').value) || 0;
+        const qty = parseInt(document.getElementById('dtfQty').value) || 0;
+
+        const useTransfer = document.getElementById('dtfTransferCheck').checked;
+        const pressQty = parseInt(document.getElementById('dtfPressQty').value) || 0;
+
+        if (wMm <= 0 || hMm <= 0 || qty <= 0) return;
+
+        const rollWidthMm = 600;
+        const cols = Math.max(1, Math.floor(rollWidthMm / wMm));
+        const linearMeters = (Math.ceil(qty / cols) * hMm) / 1000;
+
+        const ratePerMeter = 1800.00;
+        let printSum = linearMeters * ratePerMeter;
+        
+        // Правило минимальной суммы заказа для DTF
+        if (printSum < 1700) {
+            printSum = 1700.00;
+        }
+
+        // Стоимость термопереноса (например, 150 руб за 1 прижим)
+        const transferRate = 150.00;
+        const transferSum = useTransfer ? (pressQty * transferRate) : 0;
+
+        const grandTotal = printSum + transferSum;
+
+        document.getElementById('resDtfCols').innerText = `${cols} шт. в ряд`;
+        document.getElementById('resDtfLinear').innerText = `${linearMeters.toFixed(3)} пог. м`;
+        document.getElementById('resDtfPrintSum').innerText = printSum.toFixed(2) + ' ₽';
+        document.getElementById('resDtfTransferSum').innerText = transferSum.toFixed(2) + ' ₽';
+        document.getElementById('resDtfTotalSum').innerText = grandTotal.toFixed(2) + ' ₽';
+    }
+
+    window.onload = calcDTF;
+</script>
+
+</body>
+</html>

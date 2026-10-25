@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Расчет метража (Широкоформатная печать)</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --sidebar-bg: #1e293b;
+            --sidebar-text: #94a3b8;
+            --sidebar-text-hover: #ffffff;
+            --sidebar-active: #4f46e5;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #cbd5e1;
+            --radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .app-layout {
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 270px;
+            background-color: var(--sidebar-bg);
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            flex-shrink: 0;
+        }
+
+        .sidebar-brand {
+            padding: 24px 20px;
+            font-size: 18px;
+            font-weight: 700;
+            color: #ffffff;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding: 16px 12px;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            text-align: left;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--sidebar-text);
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--sidebar-text-hover);
+        }
+
+        .tab-btn.active {
+            background: var(--sidebar-active);
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+
+        .main-content {
+            flex-grow: 1;
+            background-color: var(--bg-color);
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .page-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 16px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 900px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            body {
+                height: auto;
+                overflow: auto;
+            }
+            .app-layout {
+                flex-direction: column;
+                height: auto;
+            }
+            .sidebar {
+                width: 100%;
+            }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+        }
+
+        .section-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 12px;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        label {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+        }
+
+        input {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            background: #fff;
+            color: var(--text-main);
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .hint {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .results-box {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            font-size: 13px;
+        }
+
+        .result-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .result-value {
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .preview-container {
+            width: 100%;
+            height: 260px;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        canvas {
+            max-width: 100%;
+            max-height: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-layout">
+    <!-- Левое меню -->
+    <div class="sidebar">
+        <div class="sidebar-brand">Калькулятор типографии</div>
+        <div class="sidebar-menu">
+            <a href="index.html" class="tab-btn">1. Справочник форматов</a>
+            <a href="sheet.html" class="tab-btn">2. Вместимость листа</a>
+            <a href="meterage.html" class="tab-btn active">3. Расчет метража</a>
+            <a href="postpress.html" class="tab-btn">4. Постпресс</a>
+            <a href="digital.html" class="tab-btn">5. Цифровая печать</a>
+            <a href="interior.html" class="tab-btn">6. Интерьерная печать</a>
+            <a href="wide.html" class="tab-btn">7. Широкоформатная печать</a>
+            <a href="uv.html" class="tab-btn">8. УФ-печать</a>
+            <a href="dtf.html" class="tab-btn">9. DTF-печать</a>
+            <a href="tampon_silk.html" class="tab-btn">10. Тампопечать и шелкография</a>
+        </div>
+    </div>
+
+    <!-- Основной контент -->
+    <div class="main-content">
+        <div class="page-title">Расчет метража (Широкоформатная печать)</div>
+        
+        <div class="grid-2">
+            <!-- Левая колонка параметров -->
+            <div class="card">
+                <div class="section-title">Параметры печати</div>
+                <div class="form-group">
+                    <label>Ширина рулона (мм)</label>
+                    <input type="number" id="rollWidth" value="1050" oninput="calculateMeterage()">
+                    <div class="hint">Например: 1050, 1260, 1370, 1520 мм</div>
+                </div>
+                <div class="input-row">
+                    <div class="form-group">
+                        <label>Ширина изделия (мм)</label>
+                        <input type="number" id="metProdWidth" value="500" oninput="calculateMeterage()">
+                    </div>
+                    <div class="form-group">
+                        <label>Высота изделия (мм)</label>
+                        <input type="number" id="metProdHeight" value="700" oninput="calculateMeterage()">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Тираж (шт.)</label>
+                    <input type="number" id="metCirculation" value="10" min="1" oninput="calculateMeterage()">
+                </div>
+            </div>
+
+            <!-- Правая колонка результатов и визуализации -->
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+                <div class="card">
+                    <div class="section-title">Результаты расчета</div>
+                    <div class="results-box">
+                        <div class="result-item"><span>Размещение по ширине рулона:</span><span id="metCols" class="result-value">-</span></div>
+                        <div class="result-item"><span>Погонные метры (длина рулона):</span><span id="metLinearMeters" class="result-value">-</span></div>
+                        <div class="result-item"><span>Площадь чистого изделия:</span><span id="metSquareProduct" class="result-value">-</span></div>
+                        <div class="result-item" style="border-top: 1px solid var(--border); margin-top: 8px; padding-top: 8px;">
+                            <span>Общая площадь рулона:</span><span id="metSquareRoll" class="result-value" style="font-size: 16px;">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="flex-grow: 1; display: flex; flex-direction: column;">
+                    <div class="section-title" style="margin-bottom: 8px;">Схема раскладки изделий на рулоне</div>
+                    <div class="preview-container" style="flex-grow: 1; min-height: 220px;">
+                        <canvas id="meterageCanvas" width="350" height="220"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function calculateMeterage() {
+        const rollW = parseFloat(document.getElementById('rollWidth').value) || 0;
+        const pw = parseFloat(document.getElementById('metProdWidth').value) || 0;
+        const ph = parseFloat(document.getElementById('metProdHeight').value) || 0;
+        const qty = parseInt(document.getElementById('metCirculation').value) || 0;
+
+        if (rollW <= 0 || pw <= 0 || ph <= 0 || qty <= 0) {
+            document.getElementById('metCols').innerText = '-';
+            document.getElementById('metLinearMeters').innerText = '-';
+            document.getElementById('metSquareProduct').innerText = '-';
+            document.getElementById('metSquareRoll').innerText = '-';
+            return;
+        }
+
+        // Проверяем два варианта ориентации изделия на рулоне
+        const cols1 = Math.floor(rollW / pw);
+        const linear1 = cols1 > 0 ? (Math.ceil(qty / cols1) * ph) / 1000 : Infinity;
+
+        const cols2 = Math.floor(rollW / ph);
+        const linear2 = cols2 > 0 ? (Math.ceil(qty / cols2) * pw) / 1000 : Infinity;
+
+        let bestCols = 0;
+        let bestLinear = 0;
+        let orientedW = pw;
+        let orientedH = ph;
+
+        if ((cols1 > 0 && linear1 <= linear2) || cols2 <= 0) {
+            bestCols = cols1;
+            bestLinear = linear1;
+            orientedW = pw;
+            orientedH = ph;
+        } else {
+            bestCols = cols2;
+            bestLinear = linear2;
+            orientedW = ph;
+            orientedH = pw;
+        }
+
+        if (bestCols <= 0) {
+            document.getElementById('metCols').innerText = 'Изделие шире рулона!';
+            document.getElementById('metLinearMeters').innerText = '-';
+            document.getElementById('metSquareProduct').innerText = '-';
+            document.getElementById('metSquareRoll').innerText = '-';
+            return;
+        }
+
+        const sqProduct = ((pw * ph * qty) / 1000000).toFixed(3);
+        const sqRoll = ((rollW / 1000) * bestLinear).toFixed(3);
+
+        document.getElementById('metCols').innerText = `${bestCols} шт. в ряд по ширине`;
+        document.getElementById('metLinearMeters').innerText = `${bestLinear.toFixed(3)} пог. м`;
+        document.getElementById('metSquareProduct').innerText = `${sqProduct} кв. м`;
+        document.getElementById('metSquareRoll').innerText = `${sqRoll} кв. м`;
+
+        drawMeteragePreview(rollW, bestLinear * 1000, orientedW, orientedH, bestCols, qty);
+    }
+
+    function drawMeteragePreview(rollW, rollH, itemW, itemH, cols, qty) {
+        const canvas = document.getElementById('meterageCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = canvas.parentElement.clientWidth;
+        canvas.height = canvas.parentElement.clientHeight;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const pW = canvas.width - 30;
+        const pH = canvas.height - 30;
+
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(15, 15, pW, pH);
+        ctx.strokeStyle = "#cbd5e1";
+        ctx.strokeRect(15, 15, pW, pH);
+
+        const scaleX = pW / rollW;
+        const scaleY = pH / Math.max(rollH, 1);
+        const scale = Math.min(scaleX, scaleY);
+
+        const drawRollW = rollW * scale;
+        const drawRollH = rollH * scale;
+        const startX = 15 + (pW - drawRollW) / 2;
+        const startY = 15;
+
+        // Рулон
+        ctx.fillStyle = "rgba(79, 70, 229, 0.05)";
+        ctx.fillRect(startX, startY, drawRollW, drawRollH);
+        ctx.strokeStyle = "#4f46e5";
+        ctx.lineWidth = 1;
+        ctx.strokeRect(startX, startY, drawRollW, drawRollH);
+
+        // Изделия на рулоне
+        ctx.fillStyle = "rgba(79, 70, 229, 0.25)";
+        ctx.strokeStyle = "#4f46e5";
+
+        let drawnCount = 0;
+        let rows = Math.ceil(qty / cols);
+
+        for (let r = 0; r < rows && drawnCount < qty; r++) {
+            let currentX = startX;
+            for (let c = 0; c < cols && drawnCount < qty; c++) {
+                const iW = itemW * scale;
+                const iH = itemH * scale;
+                ctx.fillRect(currentX, startY + r * iH, iW, iH);
+                ctx.strokeRect(currentX, startY + r * iH, iW, iH);
+                currentX += iW;
+                drawnCount++;
+            }
+        }
+    }
+
+    window.onload = calculateMeterage;
+    window.onresize = calculateMeterage;
+</script>
+
+</body>
+</html>

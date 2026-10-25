@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Широкоформатная печать</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --sidebar-bg: #1e293b;
+            --sidebar-text: #94a3b8;
+            --sidebar-text-hover: #ffffff;
+            --sidebar-active: #4f46e5;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #cbd5e1;
+            --radius: 12px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); height: 100vh; display: flex; overflow: hidden; }
+        .app-layout { display: flex; width: 100vw; height: 100vh; }
+        .sidebar { width: 280px; background-color: var(--sidebar-bg); display: flex; flex-direction: column; border-right: 1px solid rgba(255,255,255,0.1); flex-shrink: 0; }
+        .sidebar-brand { padding: 22px 20px; font-size: 19px; font-weight: 700; color: #ffffff; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .sidebar-menu { display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; overflow-y: auto; flex-grow: 1; }
+        .tab-btn { background: transparent; border: none; text-align: left; padding: 12px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; color: var(--sidebar-text); cursor: pointer; text-decoration: none; transition: all 0.2s; }
+        .tab-btn:hover { background: rgba(255,255,255,0.05); color: var(--sidebar-text-hover); }
+        .tab-btn.active { background: var(--sidebar-active); color: white; font-weight: 600; }
+        
+        .main-content { flex-grow: 1; background-color: var(--bg-color); padding: 22px 26px; overflow-y: auto; display: flex; flex-direction: column; justify-content: space-between; max-width: 1250px; margin: 0 auto; width: 100%; }
+        .page-title { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .card { background: var(--card-bg); border-radius: var(--radius); border: 1px solid var(--border); padding: 18px 22px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+        
+        .section-title { font-size: 15px; font-weight: 600; color: var(--text-main); margin-bottom: 12px; }
+        label { display: block; font-size: 12px; font-weight: 500; color: var(--text-muted); margin-bottom: 5px; }
+        select, input { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; background: #fff; }
+        
+        .form-group { margin-bottom: 14px; }
+        .form-group:last-child { margin-bottom: 0; }
+        .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .hint { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+        .results-box { background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+        .result-item { display: flex; justify-content: space-between; font-size: 13px; }
+        .result-value { font-weight: 700; color: var(--primary); }
+    </style>
+</head>
+<body>
+
+<div class="app-layout">
+    <!-- Левое меню -->
+    <div class="sidebar">
+        <div class="sidebar-brand">Калькулятор типографии</div>
+        <div class="sidebar-menu">
+            <a href="index.html" class="tab-btn">1. Справочник форматов</a>
+            <a href="sheet.html" class="tab-btn">2. Вместимость листа</a>
+            <a href="meterage.html" class="tab-btn">3. Расчет метража</a>
+            <a href="postpress.html" class="tab-btn">4. Постпресс</a>
+            <a href="digital.html" class="tab-btn">5. Цифровая печать</a>
+            <a href="interior.html" class="tab-btn">6. Интерьерная печать</a>
+            <a href="wide.html" class="tab-btn active">7. Широкоформатная печать</a>
+            <a href="uv.html" class="tab-btn">8. УФ-печать</a>
+            <a href="dtf.html" class="tab-btn">9. DTF-печать</a>
+            <a href="tampon_silk.html" class="tab-btn">10. Тампопечать и шелкография</a>
+        </div>
+    </div>
+
+    <!-- Основной контент -->
+    <div class="main-content">
+        <div>
+            <div class="page-title">Широкоформатная печать</div>
+            <div class="hint" style="margin-bottom: 16px;">Максимальная ширина печати 3200 мм. Заказы объемом менее 1,0 м² считаются за целый 1,0 м². Цены зависят от тиража (до 50 м² и от 50 м²).</div>
+            
+            <div class="grid-2">
+                <div class="card" style="display: flex; flex-direction: column; gap: 14px;">
+                    <div class="section-title">Параметры расчета</div>
+                    
+                    <div class="form-group">
+                        <label>Материал</label>
+                        <select id="wideMaterial" onchange="onWideMaterialChange(); calcWide();"></select>
+                        <div class="hint" id="wideDesc" style="margin-top: 6px; color: var(--text-main); font-style: italic;"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Качество печати</label>
+                        <select id="wideQuality" onchange="calcWide()">
+                            <option value="360" selected>360 dpi</option>
+                            <option value="720">720 dpi</option>
+                        </select>
+                    </div>
+
+                    <div class="input-row">
+                        <div class="form-group">
+                            <label>Ширина изделия (мм)</label>
+                            <input type="number" id="wideW" value="1000" oninput="calcWide()">
+                        </div>
+                        <div class="form-group">
+                            <label>Высота изделия (мм)</label>
+                            <input type="number" id="wideH" value="1000" oninput="calcWide()">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Тираж (шт.)</label>
+                        <input type="number" id="wideQty" value="1" min="1" oninput="calcWide()">
+                    </div>
+
+                    <div class="section-title" style="margin-top: 10px;">Дополнительные работы</div>
+                    
+                    <div class="input-row">
+                        <div class="form-group">
+                            <label>Установка люверсов (шт.)</label>
+                            <input type="number" id="wideEyelets" value="0" min="0" oninput="calcWide()">
+                        </div>
+                        <div class="form-group">
+                            <label>Резка по изображению (пог. м)</label>
+                            <input type="number" id="wideContourCut" value="0" min="0" oninput="calcWide()">
+                        </div>
+                    </div>
+
+                    <div class="input-row">
+                        <div class="form-group">
+                            <label>Карманы (пог. м)</label>
+                            <input type="number" id="widePockets" value="0" min="0" oninput="calcWide()">
+                        </div>
+                        <div class="form-group">
+                            <label>Склейка/сшивка (пог. м)</label>
+                            <input type="number" id="wideGlue" value="0" min="0" oninput="calcWide()">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="section-title">Итоговый расчет заказа</div>
+                    <div class="results-box">
+                        <div class="result-item"><span>Тираж изделия:</span><span id="resWideQty" class="result-value">-</span></div>
+                        <div class="result-item"><span>Общий метраж (площадь):</span><span id="resWideArea" class="result-value">-</span></div>
+                        <div class="result-item"><span>Примененная цена за м²:</span><span id="resWideRate" class="result-value">-</span></div>
+                        <div class="result-item"><span>Стоимость печати / материала:</span><span id="resWidePrintSum" class="result-value">0.00 ₽</span></div>
+                        <div class="result-item"><span>Стоимость доп. работ:</span><span id="resWidePostSum" class="result-value">0.00 ₽</span></div>
+                        <div class="result-item" style="border-top: 1px solid var(--border); padding-top: 10px; font-size: 16px;">
+                            <span>Общая стоимость заказа:</span><span id="resWideTotalSum" class="result-value" style="font-size: 18px;">0.00 ₽</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div></div>
+    </div>
+</div>
+
+<script>
+    const wideData = [
+        { name: 'Пленка самоклеящаяся (Германия)', p360_1: 500, p360_2: 440, p720_1: 660, p720_2: 550, desc: 'наружная реклама, оформление витрин' },
+        { name: 'Пленка самоклеящаяся (Китай)', p360_1: 440, p360_2: 390, p720_1: 550, p720_2: 490, desc: 'краткосрочная наружная реклама' },
+        { name: 'Баннер "Китай" ламинированный 440г', p360_1: 390, p360_2: 330, p720_1: 500, p720_2: 440, desc: 'наружная реклама, временные вывески, брандмауэры' },
+        { name: 'Баннер литой "Европа" 460г', p360_1: 440, p360_2: 390, p720_1: 550, p720_2: 490, desc: 'щиты 3х6 метров, долговечная наружная реклама' },
+        { name: 'Баннер литой "Европа" 510г', p360_1: 500, p360_2: 440, p720_1: 610, p720_2: 550, desc: 'повышенная прочность для ветровых нагрузок' },
+        { name: 'Баннерная сетка (с подложкой/без)', p360_1: 500, p360_2: 440, p720_1: 610, p720_2: 550, desc: 'для фасадов зданий, строительных леток, ветрозащита' },
+        { name: 'Бумага "Блюбек" 115г', p360_1: 330, p360_2: 280, p720_1: 440, p720_2: 390, desc: 'щитовая реклама, афиши, плакаты' },
+        { name: 'Пленка светопропускающая Backlite', p360_1: 720, p360_2: 660, p720_1: 830, p720_2: 770, desc: 'световые короба большого формата' }
+    ];
+
+    function initWideMaterials() {
+        const sel = document.getElementById('wideMaterial');
+        if (!sel) return;
+        sel.innerHTML = '';
+        wideData.forEach((item, idx) => {
+            const opt = document.createElement('option');
+            opt.value = idx;
+            opt.textContent = item.name;
+            sel.appendChild(opt);
+        });
+        onWideMaterialChange();
+    }
+
+    function onWideMaterialChange() {
+        const idx = document.getElementById('wideMaterial').value;
+        const item = wideData[idx];
+        const descEl = document.getElementById('wideDesc');
+        if (item && descEl) descEl.innerText = `Описание / Область применения: ${item.desc}`;
+    }
+
+    function calcWide() {
+        const idx = document.getElementById('wideMaterial').value;
+        const quality = document.getElementById('wideQuality').value;
+        const wMm = parseFloat(document.getElementById('wideW').value) || 0;
+        const hMm = parseFloat(document.getElementById('wideH').value) || 0;
+        const qty = parseInt(document.getElementById('wideQty').value) || 0;
+
+        const eyelets = parseInt(document.getElementById('wideEyelets').value) || 0;
+        const contourCut = parseFloat(document.getElementById('wideContourCut').value) || 0;
+        const pockets = parseFloat(document.getElementById('widePockets').value) || 0;
+        const glue = parseFloat(document.getElementById('wideGlue').value) || 0;
+
+        const item = wideData[idx];
+        if (!item || wMm <= 0 || hMm <= 0 || qty <= 0) return;
+
+        const itemAreaSqM = (wMm * hMm) / 1000000;
+        let totalAreaSqM = itemAreaSqM * qty;
+        let chargeableAreaSqM = totalAreaSqM < 1.0 ? 1.0 : totalAreaSqM;
+
+        let rate = 0;
+        if (quality === '360') {
+            rate = (totalAreaSqM >= 50) ? item.p360_2 : item.p360_1;
+        } else {
+            rate = (totalAreaSqM >= 50) ? item.p720_2 : item.p720_1;
+        }
+
+        let printSum = chargeableAreaSqM * rate;
+
+        let postSum = 0;
+        postSum += eyelets * 30;
+        postSum += contourCut * 20;
+        postSum += pockets * 50;
+        postSum += glue * 110;
+
+        const grandTotal = printSum + postSum;
+
+        document.getElementById('resWideQty').innerText = `${qty} шт.`;
+        document.getElementById('resWideArea').innerText = `${totalAreaSqM.toFixed(3)} кв. м (расчет по ${chargeableAreaSqM.toFixed(2)} кв. м)`;
+        document.getElementById('resWideRate').innerText = `${rate} ₽ / м² (${totalAreaSqM >= 50 ? 'тираж от 50 м²' : 'тираж до 50 м²'})`;
+        document.getElementById('resWidePrintSum').innerText = printSum.toFixed(2) + ' ₽';
+        document.getElementById('resWidePostSum').innerText = postSum.toFixed(2) + ' ₽';
+        document.getElementById('resWideTotalSum').innerText = grandTotal.toFixed(2) + ' ₽';
+    }
+
+    window.onload = function() {
+        initWideMaterials();
+        calcWide();
+    };
+</script>
+
+</body>
+</html>

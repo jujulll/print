@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор типографии — Справочник</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --sidebar-bg: #1e293b;
+            --sidebar-text: #94a3b8;
+            --sidebar-text-hover: #ffffff;
+            --sidebar-active: #4f46e5;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #cbd5e1;
+            --radius: 12px;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); height: 100vh; display: flex; overflow: hidden; }
+        .app-layout { display: flex; width: 100vw; height: 100vh; }
+        .sidebar { width: 270px; background-color: var(--sidebar-bg); display: flex; flex-direction: column; border-right: 1px solid rgba(255,255,255,0.1); flex-shrink: 0; }
+        .sidebar-brand { padding: 24px 20px; font-size: 18px; font-weight: 700; color: #ffffff; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .sidebar-menu { display: flex; flex-direction: column; gap: 6px; padding: 16px 12px; overflow-y: auto; flex-grow: 1; }
+        .tab-btn { background: transparent; border: none; text-align: left; padding: 12px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; color: var(--sidebar-text); cursor: pointer; text-decoration: none; transition: all 0.2s; }
+        .tab-btn:hover { background: rgba(255,255,255,0.05); color: var(--sidebar-text-hover); }
+        .tab-btn.active { background: var(--sidebar-active); color: white; font-weight: 600; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
+        .main-content { flex-grow: 1; background-color: var(--bg-color); padding: 24px; overflow-y: auto; display: flex; flex-direction: column; }
+        .card { background: var(--card-bg); border-radius: var(--radius); border: 1px solid var(--border); padding: 20px; }
+        .table-container { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; background: #fff; }
+        th, td { padding: 10px 12px; border-bottom: 1px solid var(--border); text-align: left; }
+        th { background: #f1f5f9; font-weight: 600; color: var(--text-muted); }
+    </style>
+</head>
+<body>
+
+<div class="app-layout">
+    <div class="sidebar">
+        <div class="sidebar-brand">Калькулятор типографии</div>
+        <div class="sidebar-menu">
+            <a href="index.html" class="tab-btn active">1. Справочник форматов</a>
+            <a href="sheet.html" class="tab-btn">2. Вместимость листа</a>
+            <a href="meterage.html" class="tab-btn">3. Расчет метража</a>
+            <a href="postpress.html" class="tab-btn">4. Постпресс</a>
+            <a href="digital.html" class="tab-btn">5. Цифровая печать</a>
+            <a href="interior.html" class="tab-btn">6. Интерьерная печать</a>
+            <a href="wide.html" class="tab-btn">7. Широкоформатная печать</a>
+            <a href="uv.html" class="tab-btn">8. УФ-печать</a>
+            <a href="dtf.html" class="tab-btn">9. DTF-печать</a>
+            <a href="tampon_silk.html" class="tab-btn">10. Тампопечать и шелкография</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="page-title" style="margin-bottom: 16px;">Справочник форматов бумаги</div>
+        <div class="card" style="padding: 0; overflow: hidden;">
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr><th>Формат</th><th>Ширина (мм)</th><th>Высота (мм)</th><th>Площадь (кв. м)</th></tr>
+                    </thead>
+                    <tbody id="refTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const formatsData = [
+        { name: 'SRA3', w: 450, h: 320 }, { name: 'A0', w: 1189, h: 841 }, { name: 'A1', w: 841, h: 594 },
+        { name: 'A2', w: 594, h: 420 }, { name: 'A3', w: 420, h: 297 }, { name: 'A4', w: 297, h: 210 },
+        { name: 'A5', w: 210, h: 148 }, { name: 'A6', w: 148, h: 105 }, { name: 'A7', w: 105, h: 74 }
+    ];
+    const tbody = document.getElementById('refTableBody');
+    formatsData.forEach(f => {
+        tbody.innerHTML += `<tr><td><strong>${f.name}</strong></td><td>${f.w} мм</td><td>${f.h} мм</td><td>${(f.w*f.h/1000000).toFixed(4)} м²</td></tr>`;
+    });
+</script>
+</body>
+</html>

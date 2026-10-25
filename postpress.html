@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Постпечатная обработка</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --sidebar-bg: #1e293b;
+            --sidebar-text: #94a3b8;
+            --sidebar-text-hover: #ffffff;
+            --sidebar-active: #4f46e5;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #cbd5e1;
+            --radius: 12px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); height: 100vh; display: flex; overflow: hidden; }
+        .app-layout { display: flex; width: 100vw; height: 100vh; }
+        .sidebar { width: 280px; background-color: var(--sidebar-bg); display: flex; flex-direction: column; border-right: 1px solid rgba(255,255,255,0.1); flex-shrink: 0; }
+        .sidebar-brand { padding: 22px 20px; font-size: 19px; font-weight: 700; color: #ffffff; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .sidebar-menu { display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; overflow-y: auto; flex-grow: 1; }
+        .tab-btn { background: transparent; border: none; text-align: left; padding: 12px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; color: var(--sidebar-text); cursor: pointer; text-decoration: none; transition: all 0.2s; }
+        .tab-btn:hover { background: rgba(255,255,255,0.05); color: var(--sidebar-text-hover); }
+        .tab-btn.active { background: var(--sidebar-active); color: white; font-weight: 600; }
+        
+        .main-content { flex-grow: 1; background-color: var(--bg-color); padding: 22px 26px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; max-width: 1250px; margin: 0 auto; width: 100%; }
+        .page-title { font-size: 22px; font-weight: 700; margin-bottom: 14px; }
+
+        .grid-layout { display: flex; flex-direction: column; gap: 14px; flex-grow: 1; justify-content: center; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .card { background: var(--card-bg); border-radius: var(--radius); border: 1px solid var(--border); padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+        
+        .section-title { font-size: 14px; font-weight: 600; color: var(--text-main); margin-bottom: 8px; }
+        label { display: block; font-size: 12px; font-weight: 500; color: var(--text-muted); margin-bottom: 4px; }
+        select, input { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; background: #fff; }
+        
+        .postpress-table { display: grid; grid-template-columns: 2.2fr 1fr 1fr 1fr; gap: 8px; align-items: center; margin-bottom: 6px; background: #fff; padding: 6px 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; }
+        .postpress-header { font-weight: 600; background: #f1f5f9; color: var(--text-muted); padding: 8px 10px; }
+        
+        .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .radio-group { display: flex; gap: 14px; align-items: center; margin-top: 4px; }
+        .radio-label { display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; font-weight: normal; }
+        .radio-label input { width: auto; }
+
+        .total-banner { background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 10px; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; font-size: 16px; font-weight: 700; color: var(--primary); margin-top: auto; }
+    </style>
+</head>
+<body>
+
+<div class="app-layout">
+    <!-- Левое меню -->
+    <div class="sidebar">
+        <div class="sidebar-brand">Калькулятор типографии</div>
+        <div class="sidebar-menu">
+            <a href="index.html" class="tab-btn">1. Справочник форматов</a>
+            <a href="sheet.html" class="tab-btn">2. Вместимость листа</a>
+            <a href="meterage.html" class="tab-btn">3. Расчет метража</a>
+            <a href="postpress.html" class="tab-btn active">4. Постпресс</a>
+            <a href="digital.html" class="tab-btn">5. Цифровая печать</a>
+            <a href="interior.html" class="tab-btn">6. Интерьерная печать</a>
+            <a href="wide.html" class="tab-btn">7. Широкоформатная печать</a>
+            <a href="uv.html" class="tab-btn">8. УФ-печать</a>
+            <a href="dtf.html" class="tab-btn">9. DTF-печать</a>
+            <a href="tampon_silk.html" class="tab-btn">10. Тампопечать и шелкография</a>
+        </div>
+    </div>
+
+    <!-- Основной контент -->
+    <div class="main-content">
+        <div>
+            <div class="page-title">Постпечатная обработка</div>
+            
+            <div class="grid-layout">
+                <!-- Базовые операции из прайса -->
+                <div class="card">
+                    <div class="section-title">Базовые операции</div>
+                    <div class="postpress-table postpress-header">
+                        <span>Услуга</span><span>Цена за ед. (₽)</span><span>Кол-во</span><span>Итого</span>
+                    </div>
+                    
+                    <div class="postpress-table">
+                        <span>Листоподбор (за 1 лист)</span>
+                        <input type="number" step="0.01" id="p_coll_p" value="0.40" oninput="calcPostpress()">
+                        <input type="number" id="p_coll_q" value="0" oninput="calcPostpress()">
+                        <span id="p_coll_sum" class="result-value" style="font-weight:700; color:var(--primary);">0.00 ₽</span>
+                    </div>
+
+                    <div class="postpress-table">
+                        <span>Биговка (за 1 биг)</span>
+                        <input type="number" step="0.01" id="p_creas_p" value="1.70" oninput="calcPostpress()">
+                        <input type="number" id="p_creas_q" value="0" oninput="calcPostpress()">
+                        <span id="p_creas_sum" class="result-value" style="font-weight:700; color:var(--primary);">0.00 ₽</span>
+                    </div>
+
+                    <div class="postpress-table">
+                        <span>Степлирование (за 1 скрепку)</span>
+                        <input type="number" step="0.01" id="p_stap_p" value="2.70" oninput="calcPostpress()">
+                        <input type="number" id="p_stap_q" value="0" oninput="calcPostpress()">
+                        <span id="p_stap_sum" class="result-value" style="font-weight:700; color:var(--primary);">0.00 ₽</span>
+                    </div>
+
+                    <div class="postpress-table">
+                        <span>Люверс (за 1 шт.)</span>
+                        <input type="number" step="0.01" id="p_eye_p" value="6.50" oninput="calcPostpress()">
+                        <input type="number" id="p_eye_q" value="0" oninput="calcPostpress()">
+                        <span id="p_eye_sum" class="result-value" style="font-weight:700; color:var(--primary);">0.00 ₽</span>
+                    </div>
+
+                    <div class="postpress-table">
+                        <span>Скругление углов (за 1 экз.)</span>
+                        <input type="number" step="0.01" id="p_round_p" value="2.50" oninput="calcPostpress()">
+                        <input type="number" id="p_round_q" value="0" oninput="calcPostpress()">
+                        <span id="p_round_sum" class="result-value" style="font-weight:700; color:var(--primary);">0.00 ₽</span>
+                    </div>
+
+                    <div class="postpress-table">
+                        <span>Резка (стопа до 50 листов, за 1 рез)</span>
+                        <input type="number" step="0.01" id="p_cut_p" value="8.50" oninput="calcPostpress()">
+                        <input type="number" id="p_cut_q" value="0" oninput="calcPostpress()">
+                        <span id="p_cut_sum" class="result-value" style="font-weight:700; color:var(--primary);">0.00 ₽</span>
+                    </div>
+                </div>
+
+                <!-- Ламинирование и Переплет (с полной матрицей из таблиц) -->
+                <div class="grid-2">
+                    <div class="card">
+                        <div class="section-title">Ламинирование</div>
+                        <div class="input-row" style="margin-bottom: 8px;">
+                            <div><label>Формат</label><select id="lamFormat" onchange="updateLamTypes(); calcPostpress();"><option value="A5">A5</option><option value="A4" selected>A4</option><option value="A3">A3</option><option value="pockets">Кармашки</option></select></div>
+                            <div><label>Пленка / покрытие</label><select id="lamType" onchange="calcPostpress()"></select></div>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 8px;">
+                            <label>Стороны ламинации</label>
+                            <div class="radio-group">
+                                <label class="radio-label"><input type="radio" name="lamSide" value="2" checked onchange="calcPostpress()"> 1+1 (две)</label>
+                                <label class="radio-label"><input type="radio" name="lamSide" value="1" onchange="calcPostpress()"> 1+0 (одна)</label>
+                            </div>
+                        </div>
+                        <div class="input-row" style="align-items: flex-end;">
+                            <div><label>Кол-во листов</label><input type="number" id="lamQty" value="0" oninput="calcPostpress()"></div>
+                            <div style="font-size: 14px; font-weight: 700; color: var(--primary); padding-bottom: 8px;" id="lamSum">0.00 ₽</div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="section-title">Переплёт пружиной</div>
+                        <div class="input-row" style="margin-bottom: 8px;">
+                            <div><label>Тип пружины</label><select id="bindType" onchange="updateBindDiameters(); calcPostpress();"><option value="metal" selected>Металлическая</option><option value="plastic">Пластиковая</option></select></div>
+                            <div><label>Диаметр (мм)</label><select id="bindDiameter" onchange="calcPostpress()"></select></div>
+                        </div>
+                        <div class="input-row" style="align-items: flex-end; margin-top: 26px;">
+                            <div><label>Количество</label><input type="number" id="bindQty" value="0" oninput="calcPostpress()"></div>
+                            <div style="font-size: 14px; font-weight: 700; color: var(--primary); padding-bottom: 8px;" id="bindSum">0.00 ₽</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="total-banner">
+            <span>Итого по постпрессу:</span>
+            <span id="postpressTotalSum">0.00 ₽</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Полная матрица ламинирования по вашему прайс-листу
+    const lamMatrix = {
+        'A5': { 'Глянцевая 75 мкм': 17, 'Глянцевая самокл. 80 мкм': 50 },
+        'A4': { 
+            'Глянцевая 25-32 мкм': 15, 'Глянцевая 75 мкм': 24, 'Глянцевая 125 мкм': 32, 'Глянцевая 250 мкм': 75, 
+            'Глянцевая самокл. 80 мкм': 91, 'Матовая 25-32 мкм': 17, 'Матовая 75 мкм': 42, 'Матовая 125 мкм': 53, 'Touch-Cover': 50 
+        },
+        'A3': { 
+            'Глянцевая 25-32 мкм': 30, 'Глянцевая 75 мкм': 47, 'Глянцевая 125 мкм': 63, 'Глянцевая 250 мкм': 149, 
+            'Глянцевая самокл. 80 мкм': 182, 'Матовая 25-32 мкм': 33, 'Матовая 75 мкм': 83, 'Матовая 125 мкм': 106, 'Touch-Cover': 99 
+        },
+        'pockets': { 'Глянцевая 75 мкм': 12 }
+    };
+
+    // Полная матрица переплета по вашему прайс-листу
+    const bindMatrix = {
+        'metal': { '6.5': 23.00, '12.5': 36.50 },
+        'plastic': { '6.5': 20.00, '8': 23.00, '12.5': 30.00, '20': 40.00, '50': 107.00 }
+    };
+
+    function updateLamTypes() {
+        const format = document.getElementById('lamFormat').value;
+        const sel = document.getElementById('lamType');
+        sel.innerHTML = '';
+        const opts = lamMatrix[format] || {};
+        for (let k in opts) {
+            const opt = document.createElement('option');
+            opt.value = k;
+            opt.textContent = `${k} (${opts[k]} ₽)`;
+            sel.appendChild(opt);
+        }
+    }
+
+    function updateBindDiameters() {
+        const type = document.getElementById('bindType').value;
+        const sel = document.getElementById('bindDiameter');
+        sel.innerHTML = '';
+        const opts = bindMatrix[type] || {};
+        for (let k in opts) {
+            const opt = document.createElement('option');
+            opt.value = k;
+            opt.textContent = `${k} мм (${opts[k]} ₽)`;
+            sel.appendChild(opt);
+        }
+    }
+
+    function calcPostpress() {
+        const collSum = (parseFloat(document.getElementById('p_coll_p').value) || 0) * (parseFloat(document.getElementById('p_coll_q').value) || 0);
+        document.getElementById('p_coll_sum').innerText = collSum.toFixed(2) + ' ₽';
+
+        const creasSum = (parseFloat(document.getElementById('p_creas_p').value) || 0) * (parseFloat(document.getElementById('p_creas_q').value) || 0);
+        document.getElementById('p_creas_sum').innerText = creasSum.toFixed(2) + ' ₽';
+
+        const stapSum = (parseFloat(document.getElementById('p_stap_p').value) || 0) * (parseFloat(document.getElementById('p_stap_q').value) || 0);
+        document.getElementById('p_stap_sum').innerText = stapSum.toFixed(2) + ' ₽';
+
+        const eyeSum = (parseFloat(document.getElementById('p_eye_p').value) || 0) * (parseFloat(document.getElementById('p_eye_q').value) || 0);
+        document.getElementById('p_eye_sum').innerText = eyeSum.toFixed(2) + ' ₽';
+
+        const roundSum = (parseFloat(document.getElementById('p_round_p').value) || 0) * (parseFloat(document.getElementById('p_round_q').value) || 0);
+        document.getElementById('p_round_sum').innerText = roundSum.toFixed(2) + ' ₽';
+
+        const cutSum = (parseFloat(document.getElementById('p_cut_p').value) || 0) * (parseFloat(document.getElementById('p_cut_q').value) || 0);
+        document.getElementById('p_cut_sum').innerText = cutSum.toFixed(2) + ' ₽';
+
+        // Ламинация (с учетом 1+1 или 1+0: при односторонней делим тариф пополам)
+        const lamF = document.getElementById('lamFormat').value;
+        const lamT = document.getElementById('lamType').value;
+        const lamQ = parseFloat(document.getElementById('lamQty').value) || 0;
+        const lamSides = parseInt(document.querySelector('input[name="lamSide"]:checked').value) || 2;
+        
+        let lamRate = (lamMatrix[lamF] && lamMatrix[lamF][lamT]) ? lamMatrix[lamF][lamT] : 0;
+        if (lamSides === 1) lamRate = lamRate / 2;
+        const lamTotal = lamQ * lamRate;
+        document.getElementById('lamSum').innerText = lamTotal.toFixed(2) + ' ₽';
+
+        // Переплет
+        const bT = document.getElementById('bindType').value;
+        const bD = document.getElementById('bindDiameter').value;
+        const bQ = parseFloat(document.getElementById('bindQty').value) || 0;
+        let bRate = (bindMatrix[bT] && bindMatrix[bT][bD]) ? bindMatrix[bT][bD] : 0;
+        const bindTotal = bQ * bRate;
+        document.getElementById('bindSum').innerText = bindTotal.toFixed(2) + ' ₽';
+
+        const grandTotal = collSum + creasSum + stapSum + eyeSum + roundSum + cutSum + lamTotal + bindTotal;
+        document.getElementById('postpressTotalSum').innerText = grandTotal.toFixed(2) + ' ₽';
+    }
+
+    window.onload = function() {
+        updateLamTypes();
+        updateBindDiameters();
+        calcPostpress();
+    };
+</script>
+
+</body>
+</html>

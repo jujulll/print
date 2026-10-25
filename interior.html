@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Интерьерная печать</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --sidebar-bg: #1e293b;
+            --sidebar-text: #94a3b8;
+            --sidebar-text-hover: #ffffff;
+            --sidebar-active: #4f46e5;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #cbd5e1;
+            --radius: 12px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); height: 100vh; display: flex; overflow: hidden; }
+        .app-layout { display: flex; width: 100vw; height: 100vh; }
+        .sidebar { width: 280px; background-color: var(--sidebar-bg); display: flex; flex-direction: column; border-right: 1px solid rgba(255,255,255,0.1); flex-shrink: 0; }
+        .sidebar-brand { padding: 22px 20px; font-size: 19px; font-weight: 700; color: #ffffff; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .sidebar-menu { display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; overflow-y: auto; flex-grow: 1; }
+        .tab-btn { background: transparent; border: none; text-align: left; padding: 12px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; color: var(--sidebar-text); cursor: pointer; text-decoration: none; transition: all 0.2s; }
+        .tab-btn:hover { background: rgba(255,255,255,0.05); color: var(--sidebar-text-hover); }
+        .tab-btn.active { background: var(--sidebar-active); color: white; font-weight: 600; }
+        
+        .main-content { flex-grow: 1; background-color: var(--bg-color); padding: 22px 26px; overflow-y: auto; display: flex; flex-direction: column; justify-content: space-between; max-width: 1250px; margin: 0 auto; width: 100%; }
+        .page-title { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .card { background: var(--card-bg); border-radius: var(--radius); border: 1px solid var(--border); padding: 18px 22px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+        
+        .section-title { font-size: 15px; font-weight: 600; color: var(--text-main); margin-bottom: 12px; }
+        label { display: block; font-size: 12px; font-weight: 500; color: var(--text-muted); margin-bottom: 5px; }
+        select, input { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; background: #fff; }
+        
+        .form-group { margin-bottom: 14px; }
+        .form-group:last-child { margin-bottom: 0; }
+        .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .hint { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+        .results-box { background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+        .result-item { display: flex; justify-content: space-between; font-size: 13px; }
+        .result-value { font-weight: 700; color: var(--primary); }
+    </style>
+</head>
+<body>
+
+<div class="app-layout">
+    <!-- Левое меню -->
+    <div class="sidebar">
+        <div class="sidebar-brand">Калькулятор типографии</div>
+        <div class="sidebar-menu">
+            <a href="index.html" class="tab-btn">1. Справочник форматов</a>
+            <a href="sheet.html" class="tab-btn">2. Вместимость листа</a>
+            <a href="meterage.html" class="tab-btn">3. Расчет метража</a>
+            <a href="postpress.html" class="tab-btn">4. Постпресс</a>
+            <a href="digital.html" class="tab-btn">5. Цифровая печать</a>
+            <a href="interior.html" class="tab-btn active">6. Интерьерная печать</a>
+            <a href="wide.html" class="tab-btn">7. Широкоформатная печать</a>
+            <a href="uv.html" class="tab-btn">8. УФ-печать</a>
+            <a href="dtf.html" class="tab-btn">9. DTF-печать</a>
+            <a href="tampon_silk.html" class="tab-btn">10. Тампопечать и шелкография</a>
+        </div>
+    </div>
+
+    <!-- Основной контент -->
+    <div class="main-content">
+        <div>
+            <div class="page-title">Интерьерная и латексная печать</div>
+            <div class="hint" style="margin-bottom: 16px;">Максимальная ширина печати 1600 мм. Заказы объемом менее 1,0 м² считаются за целый 1,0 м²[cite: 1, 2].</div>
+            
+            <div class="grid-2">
+                <div class="card" style="display: flex; flex-direction: column; gap: 14px;">
+                    <div class="section-title">Параметры расчета</div>
+                    
+                    <div class="form-group">
+                        <label>Тип услуги</label>
+                        <select id="intServiceType" onchange="onInteriorServiceTypeChange(); calcInterior();">
+                            <option value="print">1. Печать (Mimaki / Latex)</option>
+                            <option value="lam_mount">2. Ламинация / Накатка</option>
+                            <option value="plotter">3. Плоттерная резка (без печати)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" id="intMachineGroup">
+                        <label>Оборудование / Технология печати</label>
+                        <select id="intMachine" onchange="updateInteriorMaterials(); calcInterior();">
+                            <option value="mimaki">Интерьерная экосольвентная печать на Mimaki CJV-300</option>
+                            <option value="latex">Интерьерная латексная печать на HP Latex</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" id="intMaterialGroup">
+                        <label>Материал / Услуга</label>
+                        <select id="intMaterial" onchange="onInteriorMaterialChange(); calcInterior();"></select>
+                        <div class="hint" id="intDesc" style="margin-top: 6px; color: var(--text-main); font-style: italic;"></div>
+                    </div>
+
+                    <div class="form-group" id="intQualityGroup">
+                        <label>Качество печати</label>
+                        <select id="intQuality" onchange="calcInterior()">
+                            <option value="720">720 dpi</option>
+                            <option value="1440" selected>1440 dpi (Фотографическое)</option>
+                        </select>
+                    </div>
+
+                    <div class="input-row">
+                        <div class="form-group">
+                            <label>Ширина изделия (мм)</label>
+                            <input type="number" id="intW" value="1000" oninput="calcInterior()">
+                        </div>
+                        <div class="form-group">
+                            <label>Высота изделия (мм)</label>
+                            <input type="number" id="intH" value="1000" oninput="calcInterior()">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Тираж (шт.)</label>
+                        <input type="number" id="intQty" value="1" min="1" oninput="calcInterior()">
+                    </div>
+
+                    <div class="section-title" style="margin-top: 10px;">Дополнительные работы</div>
+                    
+                    <div class="input-row">
+                        <div class="form-group">
+                            <label>Установка люверсов (шт.)</label>
+                            <input type="number" id="intEyelets" value="0" min="0" oninput="calcInterior()">
+                        </div>
+                        <div class="form-group">
+                            <label>Резка по изображению (пог. м)</label>
+                            <input type="number" id="intContourCut" value="0" min="0" oninput="calcInterior()">
+                        </div>
+                    </div>
+
+                    <div class="input-row">
+                        <div class="form-group">
+                            <label>Карманы (пог. м)</label>
+                            <input type="number" id="intPockets" value="0" min="0" oninput="calcInterior()">
+                        </div>
+                        <div class="form-group">
+                            <label>Склейка/сшивка (пог. м)</label>
+                            <input type="number" id="intGlue" value="0" min="0" oninput="calcInterior()">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="section-title">Итоговый расчет заказа</div>
+                    <div class="results-box">
+                        <div class="result-item"><span>Тираж изделия:</span><span id="resIntQty" class="result-value">-</span></div>
+                        <div class="result-item"><span>Общий метраж (площадь):</span><span id="resIntArea" class="result-value">-</span></div>
+                        <div class="result-item"><span>Стоимость основной услуги:</span><span id="resIntPrintSum" class="result-value">0.00 ₽</span></div>
+                        <div class="result-item"><span>Стоимость доп. работ:</span><span id="resIntPostSum" class="result-value">0.00 ₽</span></div>
+                        <div class="result-item" style="border-top: 1px solid var(--border); padding-top: 10px; font-size: 16px;">
+                            <span>Общая стоимость заказа:</span><span id="resIntTotalSum" class="result-value" style="font-size: 18px;">0.00 ₽</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div></div>
+    </div>
+</div>
+
+<script>
+    const interiorData = {
+        'mimaki': [
+            { name: 'Пленка самоклеящаяся (Германия)', p720: 830, p1440: 1050, desc: 'внутренняя и наружная реклама, брендирование витрин, автомобилей, изготовление табличек' },
+            { name: 'Печать на самоклейке с подрезкой по контуру', p720: 1380, p1440: 1600, desc: 'внутренняя и наружная реклама, выполнение аппликаций, брендирование витрин, сувениров, наклеек' },
+            { name: 'Пленка самоклеящаяся (Китай)', p720: 660, p1440: 880, desc: 'для краткосрочного нанесения, внутренняя и наружная реклама, брендирование витрин' },
+            { name: 'Баннер "Китай" ламинированный 440г', p720: 660, p1440: 880, desc: 'внутренняя и наружная реклама (темп. до -10°С), мобильные стенды, перетяжки, брандмауэры' },
+            { name: 'Баннер "Европа" литой 510г', p720: 720, p1440: 940, desc: 'внутренняя и наружная реклама (темп. до -35°С), мобильные стенды, световые короба' },
+            { name: 'Бумага "Блюбек" 115г', p720: 500, p1440: 720, desc: 'внутренняя и наружная реклама, световые короба, лайтбоксы, постеры, плакаты, афиши, картины' },
+            { name: 'Бумага постерная 150г (Испания)', p720: 610, p1440: 830, desc: 'внутренняя и наружная реклама, световые короба, лайтбоксы, постеры, ситиформаты' },
+            { name: 'Бумага ScrollJet (полипропиленовая)', p720: 880, p1440: 1100, desc: 'внутренняя и наружная реклама, скроллеры, световые короба, лайтбоксы, ситиформаты' },
+            { name: 'Пленка светопропускающая Backlite', p720: 1210, p1440: 1430, desc: 'внутренняя и наружная реклама, световые короба, световые панели' },
+            { name: 'Пленка самоклеящаяся перфорированная', p720: 830, p1440: 1050, desc: 'внутренняя и наружная реклама, брендирование витрин, окон' },
+            { name: 'Пленка световозвращающая (Германия)', p720: 2200, p1440: 2420, desc: 'изготовление знаков, табличек, указателей со светоотражающим эффектом' },
+            { name: 'Баннер светопропускающий литой 510г', p720: 1050, p1440: 1270, desc: 'внутренняя и наружная реклама, световые короба, оформление интерьеров' },
+            { name: 'Холст 360г (натуральный хлопок)', p720: 1650, p1440: 1870, desc: 'внутренняя реклама, высокохудожественные работы, оформление интерьеров, картины' },
+            { name: 'Пленка Neschen EasyDot 100 (Германия)', p720: 1210, p1440: 1430, desc: 'пленка для легкого и быстрого нанесения без пузырей и легкого удаления без следов' },
+            { name: 'Фотобумага 220г глянец/шелк', p720: 880, p1440: 1100, desc: 'внутренняя реклама, высокохудожественные работы, оформление интерьеров, картины' },
+            { name: 'Таблички на пластике 3 мм', p720: 2200, p1440: 2420, desc: 'внутренняя и наружная реклама, изготовление табличек, указателей, вывесок' },
+            { name: 'Таблички на пластике 5 мм', p720: 2750, p1440: 2970, desc: 'внутренняя и наружная реклама, изготовление табличек, указателей, вывесок' }
+        ],
+        'latex': [
+            { name: 'Пленка самоклеящаяся (Германия)', p720: 1050, p1440: 1270, desc: 'внутренняя и наружная реклама, брендирование витрин, автомобилей, изготовление табличек' },
+            { name: 'Печать на самоклейке с подрезкой по контуру', p720: 1600, p1440: 1820, desc: 'внутренняя и наружная реклама, выполнение аппликаций, сувениров, наклеек' },
+            { name: 'Пленка самоклеящаяся (Китай)', p720: 880, p1440: 1100, desc: 'для краткосрочного нанесения, внутренняя и наружная реклама, брендирование витрин' },
+            { name: 'Баннер "Китай" ламинированный 440г', p720: 880, p1440: 1100, desc: 'внутренняя и наружная реклама, мобильные стенды, перетяжки, брандмауэры' },
+            { name: 'Баннер "Европа" литой 510г', p720: 940, p1440: 1160, desc: 'внутренняя и наружная реклама, мобильные стенды, световые короба' },
+            { name: 'Бумага "Блюбек" 115г', p720: 720, p1440: 940, desc: 'внутренняя и наружная реклама, световые короба, лайтбоксы, постеры, плакаты, афиши' },
+            { name: 'Бумага постерная 150г (Испания)', p720: 830, p1440: 1050, desc: 'внутренняя и наружная реклама, световые короба, лайтбоксы, постеры' },
+            { name: 'Бумага ScrollJet (полипропиленовая)', p720: 1100, p1440: 1320, desc: 'внутренняя и наружная реклама, скроллеры, световые короба, ситиформаты' },
+            { name: 'Пленка светопропускающая Backlite', p720: 1430, p1440: 1650, desc: 'внутренняя и наружная реклама, световые короба, световые панели' },
+            { name: 'Пленка самоклеящаяся перфорированная', p720: 1050, p1440: 1270, desc: 'внутренняя и наружная реклама, брендирование витрин, окон' },
+            { name: 'Пленка световозвращающая (Германия)', p720: 2420, p1440: 2640, desc: 'изготовление знаков, табличек, указателей со светоотражающим эффектом' },
+            { name: 'Баннер светопропускающий литой 510г', p720: 1270, p1440: 1490, desc: 'внутренняя и наружная реклама, световые короба, оформление интерьеров' },
+            { name: 'Холст 360г (натуральный хлопок)', p720: 1870, p1440: 1980, desc: 'внутренняя реклама, высокохудожественные работы, оформление интерьеров' },
+            { name: 'Пленка Neschen EasyDot 100 (Германия)', p720: 1430, p1440: 1650, desc: 'пленка для легкого и быстрого нанесения без пузырей' },
+            { name: 'Фотобумага 220г глянец/шелк', p720: 1100, p1440: 1320, desc: 'внутренняя реклама, высокохудожественные работы, оформление интерьеров' },
+            { name: 'Таблички на пластике 3 мм', p720: 2420, p1440: 2640, desc: 'внутренняя и наружная реклама, изготовление табличек, указателей' },
+            { name: 'Таблички на пластике 5 мм', p720: 2970, p1440: 3190, desc: 'внутренняя и наружная реклама, изготовление табличек, указателей' }
+        ],
+        'lam_mount': [
+            { name: 'Защитная ламинация прозр. пленкой (Германия)', rate: 390, desc: 'Ширина до 1,52м' },
+            { name: 'Защитная ламинация прозр. пленкой (Китай)', rate: 330, desc: 'Ширина до 1,52м' },
+            { name: 'Накатка пленки', rate: 550, desc: 'Накатка пленки на ровную поверхность' },
+            { name: 'Накатка пленки на пластик 3мм (накатка + пластик 3мм)', rate: 1380, desc: 'Готовое изделие на пластике 3мм' },
+            { name: 'Накатка пленки на пластик 5мм (накатка + пластик 5мм)', rate: 1930, desc: 'Готовое изделие на пластике 5мм' },
+            { name: 'Монтажная пленка без накатки', rate: 280, desc: 'Монтажная пленка' },
+            { name: 'Монтажная пленка с выборкой (чисткой) и накаткой', rate: 830, desc: 'С выборкой и накаткой' },
+            { name: 'Монтажная пленка с выборкой и накаткой (мелкие элементы до 1 см)', rate: 1160, desc: 'Для мелких элементов' }
+        ],
+        'plotter': [
+            { name: 'Резка пленки (крупные элементы)', rate: 550, desc: 'Плоттерная резка крупных элементов' },
+            { name: 'Резка пленки (средние элементы до 10 см)', rate: 660, desc: 'Плоттерная резка элементов до 10 см' },
+            { name: 'Резка пленки (мелкие элементы до 1 см)', rate: 880, desc: 'Плоттерная резка мелких элементов' },
+            { name: 'Печать на пленке с контурной подрезкой (720dpi, экосольвент)', rate: 1380, desc: 'Печать с контурной подрезкой' },
+            { name: 'Пленка Orajet (глянцевая, матовая, белая, прозрачная)', rate: 390, desc: 'Материал Orajet без печати' },
+            { name: 'Пленка Oracal 641 (белая)', rate: 500, desc: 'Пленка Oracal 641 белая' },
+            { name: 'Пленка Oracal 641 (цветная)', rate: 700, desc: 'Пленка Oracal 641 цветная' }
+        ]
+    };
+
+    function onInteriorServiceTypeChange() {
+        const type = document.getElementById('intServiceType').value;
+        const machineGroup = document.getElementById('intMachineGroup');
+        const qualityGroup = document.getElementById('intQualityGroup');
+        
+        if (type === 'print') {
+            machineGroup.style.display = 'block';
+            qualityGroup.style.display = 'block';
+        } else {
+            machineGroup.style.display = 'none';
+            qualityGroup.style.display = 'none';
+        }
+        updateInteriorMaterials();
+    }
+
+    function updateInteriorMaterials() {
+        const type = document.getElementById('intServiceType').value;
+        const sel = document.getElementById('intMaterial');
+        sel.innerHTML = '';
+        
+        let list = [];
+        if (type === 'print') {
+            const machine = document.getElementById('intMachine').value;
+            list = interiorData[machine] || [];
+        } else if (type === 'lam_mount') {
+            list = interiorData['lam_mount'];
+        } else if (type === 'plotter') {
+            list = interiorData['plotter'];
+        }
+
+        list.forEach((item, idx) => {
+            const opt = document.createElement('option');
+            opt.value = idx;
+            opt.textContent = item.name;
+            sel.appendChild(opt);
+        });
+        onInteriorMaterialChange();
+    }
+
+    function onInteriorMaterialChange() {
+        const type = document.getElementById('intServiceType').value;
+        const idx = document.getElementById('intMaterial').value;
+        
+        let item = null;
+        if (type === 'print') {
+            const machine = document.getElementById('intMachine').value;
+            item = interiorData[machine][idx];
+        } else if (type === 'lam_mount') {
+            item = interiorData['lam_mount'][idx];
+        } else if (type === 'plotter') {
+            item = interiorData['plotter'][idx];
+        }
+
+        if (item) {
+            document.getElementById('intDesc').innerText = `Описание / Область применения: ${item.desc}`;
+        }
+    }
+
+    function calcInterior() {
+        const type = document.getElementById('intServiceType').value;
+        const idx = document.getElementById('intMaterial').value;
+        const quality = document.getElementById('intQuality').value;
+        const wMm = parseFloat(document.getElementById('intW').value) || 0;
+        const hMm = parseFloat(document.getElementById('intH').value) || 0;
+        const qty = parseInt(document.getElementById('intQty').value) || 0;
+
+        const eyelets = parseInt(document.getElementById('intEyelets').value) || 0;
+        const contourCut = parseFloat(document.getElementById('intContourCut').value) || 0;
+        const pockets = parseFloat(document.getElementById('intPockets').value) || 0;
+        const glue = parseFloat(document.getElementById('intGlue').value) || 0;
+
+        if (wMm <= 0 || hMm <= 0 || qty <= 0) return;
+
+        const itemAreaSqM = (wMm * hMm) / 1000000;
+        let totalAreaSqM = itemAreaSqM * qty;
+        let chargeableAreaSqM = totalAreaSqM < 1.0 ? 1.0 : totalAreaSqM;
+
+        let ratePerSqM = 0;
+        let itemData = null;
+
+        if (type === 'print') {
+            const machine = document.getElementById('intMachine').value;
+            itemData = interiorData[machine][idx];
+            ratePerSqM = (quality === '720') ? itemData.p720 : itemData.p1440;
+        } else if (type === 'lam_mount') {
+            itemData = interiorData['lam_mount'][idx];
+            ratePerSqM = itemData.rate;
+        } else if (type === 'plotter') {
+            itemData = interiorData['plotter'][idx];
+            ratePerSqM = itemData.rate;
+        }
+
+        let mainSum = chargeableAreaSqM * ratePerSqM;
+
+        let postSum = 0;
+        postSum += eyelets * 30;
+        postSum += contourCut * 20;
+        postSum += pockets * 50;
+        postSum += glue * 110;
+
+        const grandTotal = mainSum + postSum;
+
+        document.getElementById('resIntQty').innerText = `${qty} шт.`;
+        document.getElementById('resIntArea').innerText = `${totalAreaSqM.toFixed(3)} кв. м (расчет по ${chargeableAreaSqM.toFixed(2)} кв. м)`;
+        document.getElementById('resIntPrintSum').innerText = mainSum.toFixed(2) + ' ₽';
+        document.getElementById('resIntPostSum').innerText = postSum.toFixed(2) + ' ₽';
+        document.getElementById('resIntTotalSum').innerText = grandTotal.toFixed(2) + ' ₽';
+    }
+
+    window.onload = function() {
+        updateInteriorMaterials();
+        calcInterior();
+    };
+</script>
+
+</body>
+</html>

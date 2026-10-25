@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Цифровая печать</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --sidebar-bg: #1e293b;
+            --sidebar-text: #94a3b8;
+            --sidebar-text-hover: #ffffff;
+            --sidebar-active: #4f46e5;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #cbd5e1;
+            --radius: 12px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); height: 100vh; display: flex; overflow: hidden; }
+        .app-layout { display: flex; width: 100vw; height: 100vh; }
+        .sidebar { width: 280px; background-color: var(--sidebar-bg); display: flex; flex-direction: column; border-right: 1px solid rgba(255,255,255,0.1); flex-shrink: 0; }
+        .sidebar-brand { padding: 22px 20px; font-size: 19px; font-weight: 700; color: #ffffff; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .sidebar-menu { display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; overflow-y: auto; flex-grow: 1; }
+        .tab-btn { background: transparent; border: none; text-align: left; padding: 12px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; color: var(--sidebar-text); cursor: pointer; text-decoration: none; transition: all 0.2s; }
+        .tab-btn:hover { background: rgba(255,255,255,0.05); color: var(--sidebar-text-hover); }
+        .tab-btn.active { background: var(--sidebar-active); color: white; font-weight: 600; }
+        
+        .main-content { flex-grow: 1; background-color: var(--bg-color); padding: 22px 26px; overflow-y: auto; display: flex; flex-direction: column; justify-content: space-between; max-width: 1250px; margin: 0 auto; width: 100%; }
+        .page-title { font-size: 22px; font-weight: 700; margin-bottom: 14px; }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .card { background: var(--card-bg); border-radius: var(--radius); border: 1px solid var(--border); padding: 18px 22px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+        
+        .section-title { font-size: 15px; font-weight: 600; color: var(--text-main); margin-bottom: 12px; }
+        label { display: block; font-size: 12px; font-weight: 500; color: var(--text-muted); margin-bottom: 5px; }
+        select, input { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; background: #fff; }
+        
+        .form-group { margin-bottom: 14px; }
+        .form-group:last-child { margin-bottom: 0; }
+        .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        
+        .radio-group { display: flex; gap: 15px; align-items: center; margin-top: 4px; }
+        .radio-label { display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; font-weight: normal; }
+        .radio-label input { width: auto; }
+
+        .results-box { background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+        .result-item { display: flex; justify-content: space-between; font-size: 13px; }
+        .result-value { font-weight: 700; color: var(--primary); }
+    </style>
+</head>
+<body>
+
+<div class="app-layout">
+    <!-- Левое меню -->
+    <div class="sidebar">
+        <div class="sidebar-brand">Калькулятор типографии</div>
+        <div class="sidebar-menu">
+            <a href="index.html" class="tab-btn">1. Справочник форматов</a>
+            <a href="sheet.html" class="tab-btn">2. Вместимость листа</a>
+            <a href="meterage.html" class="tab-btn">3. Расчет метража</a>
+            <a href="postpress.html" class="tab-btn">4. Постпресс</a>
+            <a href="digital.html" class="tab-btn active">5. Цифровая печать</a>
+            <a href="interior.html" class="tab-btn">6. Интерьерная печать</a>
+            <a href="wide.html" class="tab-btn">7. Широкоформатная печать</a>
+            <a href="uv.html" class="tab-btn">8. УФ-печать</a>
+            <a href="dtf.html" class="tab-btn">9. DTF-печать</a>
+            <a href="tampon_silk.html" class="tab-btn">10. Тампопечать и шелкография</a>
+        </div>
+    </div>
+
+    <!-- Основной контент -->
+    <div class="main-content">
+        <div>
+            <div class="page-title">Цифровая печать (Формат А3)</div>
+            
+            <div class="grid-2">
+                <div class="card">
+                    <div class="section-title">Параметры заказа</div>
+                    
+                    <div class="form-group">
+                        <label>Материал / Бумага</label>
+                        <select id="digPaper" onchange="calcDigital()">
+                            <option value="paper_80">Бумага ВХИ 80г</option>
+                            <option value="paper_90_100">Бумага ВХИ 90-100г</option>
+                            <option value="paper_120">Бумага ВХИ 120г / Мелованная 130г</option>
+                            <option value="paper_160">Бумага ВХИ 160г / Мелованная 150г</option>
+                            <option value="paper_200">Бумага ВХИ 200г / Мелованная 170г</option>
+                            <option value="paper_280_300">Бумага ВХИ 280-300г / Мелованная 300г</option>
+                            <option value="designer_texture">Дизайнерская фактурная «Лен», «Ривз»</option>
+                            <option value="designer_lux">Дизайнерская («золото», «серебро», Majestic, PERL)</option>
+                            <option value="sticker_raflatac">Самоклеящаяся бумага Raflatac</option>
+                            <option value="film_mastac">Самоклеящаяся пленка МасТас</option>
+                            <option value="env_c4">Конверт C4 80г белый</option>
+                            <option value="env_c5">Конверт C5 80г белый</option>
+                            <option value="env_euro">Конверт евро 80г белый</option>
+                            <option value="custom_paper" style="font-weight: bold; color: var(--primary);">Своя бумага (только печать)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Кол-во печатных листов</label>
+                        <input type="number" id="digQty" value="50" min="1" oninput="calcDigital()">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Формат готового изделия</label>
+                        <select id="digCutPreset" onchange="onDigPresetChange()">
+                            <option value="A3">А3</option>
+                            <option value="A4" selected>A4</option>
+                            <option value="A5">A5</option>
+                            <option value="A6">A6</option>
+                            <option value="custom">Свой размер</option>
+                        </select>
+                    </div>
+
+                    <div class="input-row" id="customSizeBox" style="display: none;">
+                        <div class="form-group">
+                            <label>Ширина изделия (мм)</label>
+                            <input type="number" id="digItemW" value="100" oninput="calcDigital()">
+                        </div>
+                        <div class="form-group">
+                            <label>Высота изделия (мм)</label>
+                            <input type="number" id="digItemH" value="100" oninput="calcDigital()">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Печать по второй стороне</label>
+                        <div class="radio-group">
+                            <label class="radio-label"><input type="radio" name="digBack" value="none" checked onchange="calcDigital()"> 4+0</label>
+                            <label class="radio-label"><input type="radio" name="digBack" value="color" onchange="calcDigital()"> 4+4 (цвет)</label>
+                            <label class="radio-label"><input type="radio" name="digBack" value="bw" onchange="calcDigital()"> 4+1 (ч/б)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="section-title">Калькуляция стоимости</div>
+                    <div class="results-box">
+                        <div class="result-item"><span>Цена печати за 1 лист:</span><span id="digPerSheetSum" class="result-value">0.00 ₽</span></div>
+                        <div class="result-item"><span>Стоимость тиража (печать/бумага):</span><span id="digPrintSum" class="result-value">0.00 ₽</span></div>
+                        <div class="result-item"><span>Стоимость резки (стопа до 50л):</span><span id="digCuttingSum" class="result-value">0.00 ₽</span></div>
+                        <div class="result-item" style="border-top: 1px solid var(--border); padding-top: 10px; font-size: 16px;">
+                            <span>Итого стоимость заказа:</span><span id="digTotalSum" class="result-value" style="font-size: 18px;">0.00 ₽</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div></div>
+    </div>
+</div>
+
+<script>
+    const digitalPrices = {
+        'paper_80': [92, 76, 52, 42, 29, 20, 18],
+        'paper_90_100': [96, 81, 56, 45, 32, 23, 21],
+        'paper_120': [102, 83, 63, 50, 33, 29, 25],
+        'paper_160': [105, 88, 65, 53, 39, 30, 28],
+        'paper_200': [106, 91, 66, 55, 40, 32, 29],
+        'paper_280_300': [113, 96, 72, 59, 45, 36, 33],
+        'designer_texture': [248, 215, 190, 180, 167, 158, 143],
+        'designer_lux': [388, 372, 347, 337, 323, 316, 284],
+        'sticker_raflatac': [155, 111, 86, 76, 63, 55, 50],
+        'film_mastac': [396, 380, 355, 347, 330, 322, 290],
+        'env_c4': [90, 78, 59, 52, 42, 35, 32],
+        'env_c5': [87, 75, 56, 48, 39, 33, 30],
+        'env_euro': [87, 75, 56, 48, 39, 32, 29]
+    };
+
+    const digitalBackPrices = {
+        'color': [91, 75, 50, 40, 26, 19, 17],
+        'bw': [20, 17, 13, 12, 10, 7, 6]
+    };
+
+    function getTier(q) {
+        if (q <= 9) return 0;
+        if (q <= 49) return 1;
+        if (q <= 99) return 2;
+        if (q <= 249) return 3;
+        if (q <= 499) return 4;
+        if (q <= 999) return 5;
+        return 6;
+    }
+
+    function onDigPresetChange() {
+        const val = document.getElementById('digCutPreset').value;
+        document.getElementById('customSizeBox').style.display = (val === 'custom') ? 'grid' : 'none';
+        calcDigital();
+    }
+
+    function calcDigital() {
+        const paper = document.getElementById('digPaper').value;
+        const qty = parseInt(document.getElementById('digQty').value) || 0;
+        const cutPreset = document.getElementById('digCutPreset').value;
+        const back = document.querySelector('input[name="digBack"]:checked').value;
+
+        const a3W = 420, a3H = 297;
+        let itemW = a3W, itemH = a3H;
+
+        if (cutPreset === 'A3') { itemW = 420; itemH = 297; }
+        else if (cutPreset === 'A4') { itemW = 297; itemH = 210; }
+        else if (cutPreset === 'A5') { itemW = 210; itemH = 148; }
+        else if (cutPreset === 'A6') { itemW = 148; itemH = 105; }
+        else if (cutPreset === 'custom') {
+            itemW = parseFloat(document.getElementById('digItemW').value) || 100;
+            itemH = parseFloat(document.getElementById('digItemH').value) || 100;
+        }
+
+        let cols1 = Math.floor(a3W / itemW);
+        let rows1 = Math.floor(a3H / itemH);
+        let total1 = cols1 * rows1;
+
+        let cols2 = Math.floor(a3W / itemH);
+        let rows2 = Math.floor(a3H / itemW);
+        let total2 = cols2 * rows2;
+
+        let cols = cols1, rows = rows1;
+        if (total2 > total1) {
+            cols = cols2;
+            rows = rows2;
+        }
+        if (cols < 1) cols = 1;
+        if (rows < 1) rows = 1;
+
+        let perimeterCuts = 4;
+        let internalCuts = (2 * Math.max(0, cols - 1)) + (2 * Math.max(0, rows - 1));
+        let totalCutsPerSheet = perimeterCuts + internalCuts;
+        if (cutPreset === 'A3') totalCutsPerSheet = 4;
+
+        if (qty <= 0) {
+            document.getElementById('digPerSheetSum').innerText = '0.00 ₽';
+            document.getElementById('digPrintSum').innerText = '0.00 ₽';
+            document.getElementById('digCuttingSum').innerText = '0.00 ₽';
+            document.getElementById('digTotalSum').innerText = '0.00 ₽';
+            return;
+        }
+
+        const tier = getTier(qty);
+        let front = 0;
+        let bPrice = 0;
+
+        if (paper === 'custom_paper') {
+            front = digitalBackPrices['color'][tier];
+            if (back === 'color') bPrice = digitalBackPrices['color'][tier];
+            if (back === 'bw') bPrice = digitalBackPrices['bw'][tier];
+        } else {
+            front = (digitalPrices[paper]) ? digitalPrices[paper][tier] : 0;
+            if (back === 'color' && digitalBackPrices['color']) bPrice = digitalBackPrices['color'][tier];
+            if (back === 'bw' && digitalBackPrices['bw']) bPrice = digitalBackPrices['bw'][tier];
+        }
+
+        const perSheet = front + bPrice;
+        const printSum = perSheet * qty;
+        
+        const cuttingSum = Math.ceil(qty / 50) * totalCutsPerSheet * 8.50;
+        const totalSum = printSum + cuttingSum;
+
+        document.getElementById('digPerSheetSum').innerText = perSheet.toFixed(2) + ' ₽';
+        document.getElementById('digPrintSum').innerText = printSum.toFixed(2) + ' ₽';
+        document.getElementById('digCuttingSum').innerText = cuttingSum.toFixed(2) + ' ₽';
+        document.getElementById('digTotalSum').innerText = totalSum.toFixed(2) + ' ₽';
+    }
+
+    window.onload = calcDigital;
+</script>
+
+</body>
+</html>

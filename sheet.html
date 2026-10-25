@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вместимость печатного листа (2 изделия)</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --sidebar-bg: #1e293b;
+            --sidebar-text: #94a3b8;
+            --sidebar-text-hover: #ffffff;
+            --sidebar-active: #4f46e5;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #cbd5e1;
+            --radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .app-layout {
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 270px;
+            background-color: var(--sidebar-bg);
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            flex-shrink: 0;
+        }
+
+        .sidebar-brand {
+            padding: 24px 20px;
+            font-size: 18px;
+            font-weight: 700;
+            color: #ffffff;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding: 16px 12px;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            text-align: left;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--sidebar-text);
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--sidebar-text-hover);
+        }
+
+        .tab-btn.active {
+            background: var(--sidebar-active);
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+
+        .main-content {
+            flex-grow: 1;
+            background-color: var(--bg-color);
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .page-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 16px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 900px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            body {
+                height: auto;
+                overflow: auto;
+            }
+            .app-layout {
+                flex-direction: column;
+                height: auto;
+            }
+            .sidebar {
+                width: 100%;
+            }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+        }
+
+        .section-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        label {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            background: #fff;
+            color: var(--text-main);
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .checkbox-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--text-main);
+            cursor: pointer;
+        }
+
+        .checkbox-row input {
+            width: auto;
+        }
+
+        .results-box {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            font-size: 13px;
+        }
+
+        .result-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .result-value {
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .preview-container {
+            width: 100%;
+            height: 260px;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        canvas {
+            max-width: 100%;
+            max-height: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-layout">
+    <!-- Левое меню -->
+    <div class="sidebar">
+        <div class="sidebar-brand">Калькулятор типографии</div>
+        <div class="sidebar-menu">
+            <a href="index.html" class="tab-btn">1. Справочник форматов</a>
+            <a href="sheet.html" class="tab-btn active">2. Вместимость листа</a>
+            <a href="meterage.html" class="tab-btn">3. Расчет метража</a>
+            <a href="postpress.html" class="tab-btn">4. Постпресс</a>
+            <a href="digital.html" class="tab-btn">5. Цифровая печать</a>
+            <a href="interior.html" class="tab-btn">6. Интерьерная печать</a>
+            <a href="wide.html" class="tab-btn">7. Широкоформатная печать</a>
+            <a href="uv.html" class="tab-btn">8. УФ-печать</a>
+            <a href="dtf.html" class="tab-btn">9. DTF-печать</a>
+            <a href="tampon_silk.html" class="tab-btn">10. Тампопечать и шелкография</a>
+        </div>
+    </div>
+
+    <!-- Основной контент -->
+    <div class="main-content">
+        <div class="page-title">Расчет вместимости печатного листа</div>
+        
+        <div class="grid-2">
+            <!-- Левая колонка параметров -->
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+                <div class="card">
+                    <div class="section-title">Печатный лист</div>
+                    <div class="form-group">
+                        <label>Стандартный формат</label>
+                        <select id="printPreset" onchange="onPrintPresetChange()">
+                            <option value="custom">Свой размер</option>
+                            <option value="SRA3" selected>SRA3 (450 × 320 мм)</option>
+                            <option value="A3">A3 (420 × 297 мм)</option>
+                            <option value="A4">A4 (297 × 210 мм)</option>
+                            <option value="A2">A2 (594 × 420 мм)</option>
+                        </select>
+                    </div>
+                    <div class="input-row">
+                        <div class="form-group">
+                            <label>Ширина (мм)</label>
+                            <input type="number" id="printWidth" value="450" oninput="onPrintCustomInput()">
+                        </div>
+                        <div class="form-group">
+                            <label>Высота (мм)</label>
+                            <input type="number" id="printHeight" value="320" oninput="onPrintCustomInput()">
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-top: 10px;">
+                        <label>Отступы от краев (мм)</label>
+                        <input type="number" id="printMargin" value="5" oninput="calculateSheet()">
+                    </div>
+                </div>
+
+                <!-- Изделие 1 -->
+                <div class="card">
+                    <div class="section-title">
+                        <span>Изделие 1</span>
+                        <label class="checkbox-row" style="margin: 0; font-size: 12px;">
+                            <input type="checkbox" id="prod1BleedCheck" onchange="toggleBleed1()"> С вылетами
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>Стандартный формат</label>
+                        <select id="prodPreset1" onchange="onProd1PresetChange()">
+                            <option value="custom">Свой размер</option>
+                            <option value="A4">A4 (297 × 210 мм)</option>
+                            <option value="A5">A5 (210 × 148 мм)</option>
+                            <option value="Card" selected>Визитка (90 × 50 мм)</option>
+                        </select>
+                    </div>
+                    <div class="input-row">
+                        <div class="form-group">
+                            <label>Ширина (мм)</label>
+                            <input type="number" id="prodWidth1" value="90" oninput="onProd1CustomInput()">
+                        </div>
+                        <div class="form-group">
+                            <label>Высота (мм)</label>
+                            <input type="number" id="prodHeight1" value="50" oninput="onProd1CustomInput()">
+                        </div>
+                    </div>
+                    <div class="form-group" id="bleed1Box" style="display: none; margin-top: 8px;">
+                        <label>Вылеты под обрез (мм с каждой стороны)</label>
+                        <input type="number" id="bleed1Val" value="2" oninput="calculateSheet()">
+                    </div>
+                    <div class="form-group" style="margin-top: 10px;">
+                        <label>Тираж изделия 1 (шт.)</label>
+                        <input type="number" id="circulation1" value="1000" oninput="calculateSheet()">
+                    </div>
+                </div>
+
+                <!-- Изделие 2 -->
+                <div class="card">
+                    <div class="section-title">
+                        <span>Изделие 2 (Дополнительное)</span>
+                        <label class="checkbox-row" style="margin: 0; font-size: 12px;">
+                            <input type="checkbox" id="enableSecondProduct" onchange="toggleSecondProduct()"> Включить второе
+                        </label>
+                    </div>
+                    <div id="secondProductContainer" style="opacity: 0.5; pointer-events: none;">
+                        <div class="form-group">
+                            <label>Стандартный формат</label>
+                            <select id="prodPreset2" onchange="onProd2PresetChange()">
+                                <option value="custom">Свой размер</option>
+                                <option value="A4">A4 (297 × 210 мм)</option>
+                                <option value="A5" selected>A5 (210 × 148 мм)</option>
+                                <option value="Card">Визитка (90 × 50 мм)</option>
+                            </select>
+                        </div>
+                        <div class="input-row">
+                            <div class="form-group">
+                                <label>Ширина (мм)</label>
+                                <input type="number" id="prodWidth2" value="210" oninput="onProd2CustomInput()">
+                            </div>
+                            <div class="form-group">
+                                <label>Высота (мм)</label>
+                                <input type="number" id="prodHeight2" value="148" oninput="onProd2CustomInput()">
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-top: 10px;">
+                            <label>Тираж изделия 2 (шт.)</label>
+                            <input type="number" id="circulation2" value="500" oninput="calculateSheet()">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Правая колонка результатов и визуализации -->
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+                <div class="card">
+                    <div class="section-title">Результаты расчета</div>
+                    <div class="results-box">
+                        <div class="result-item"><span>Полезная зона листа:</span><span id="resField" class="result-value">-</span></div>
+                        <div class="result-item"><span>Изделий 1 на листе:</span><span id="resPerSheet1" class="result-value">-</span></div>
+                        <div class="result-item"><span>Листов на тираж Изделия 1:</span><span id="resSheets1" class="result-value">-</span></div>
+                        <div id="resItem2Block" style="display: none; border-top: 1px dashed var(--border); margin-top: 6px; padding-top: 6px;">
+                            <div class="result-item"><span>Изделий 2 на листе:</span><span id="resPerSheet2" class="result-value">-</span></div>
+                            <div class="result-item"><span>Листов на тираж Изделия 2:</span><span id="resSheets2" class="result-value">-</span></div>
+                        </div>
+                        <div class="result-item" style="border-top: 1px solid var(--border); margin-top: 8px; padding-top: 8px;">
+                            <span>Общие листы на тираж:</span><span id="resTotalSheets" class="result-value" style="font-size: 15px;">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="flex-grow: 1; display: flex; flex-direction: column;">
+                    <div class="section-title" style="margin-bottom: 8px;">Визуализация раскладки (1 и 2 изделия)</div>
+                    <div class="preview-container" style="flex-grow: 1; min-height: 250px;">
+                        <canvas id="layoutCanvas" width="350" height="250"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const printPresets = {
+        'SRA3': { w: 450, h: 320 },
+        'A3': { w: 420, h: 297 },
+        'A4': { w: 297, h: 210 },
+        'A2': { w: 594, h: 420 }
+    };
+
+    const prodPresets = {
+        'A4': { w: 297, h: 210 },
+        'A5': { w: 210, h: 148 },
+        'A6': { w: 148, h: 105 },
+        'Card': { w: 90, h: 50 }
+    };
+
+    function onPrintPresetChange() {
+        const val = document.getElementById('printPreset').value;
+        if (val !== 'custom') {
+            document.getElementById('printWidth').value = printPresets[val].w;
+            document.getElementById('printHeight').value = printPresets[val].h;
+        }
+        calculateSheet();
+    }
+
+    function onPrintCustomInput() {
+        document.getElementById('printPreset').value = 'custom';
+        calculateSheet();
+    }
+
+    function toggleBleed1() {
+        const checked = document.getElementById('prod1BleedCheck').checked;
+        document.getElementById('bleed1Box').style.display = checked ? 'block' : 'none';
+        calculateSheet();
+    }
+
+    function onProd1PresetChange() {
+        const val = document.getElementById('prodPreset1').value;
+        if (val !== 'custom') {
+            document.getElementById('prodWidth1').value = prodPresets[val].w;
+            document.getElementById('prodHeight1').value = prodPresets[val].h;
+        }
+        calculateSheet();
+    }
+
+    function onProd1CustomInput() {
+        document.getElementById('prodPreset1').value = 'custom';
+        calculateSheet();
+    }
+
+    function toggleSecondProduct() {
+        const enabled = document.getElementById('enableSecondProduct').checked;
+        document.getElementById('secondProductContainer').style.opacity = enabled ? '1' : '0.5';
+        document.getElementById('secondProductContainer').style.pointerEvents = enabled ? 'auto' : 'none';
+        document.getElementById('resItem2Block').style.display = enabled ? 'block' : 'none';
+        calculateSheet();
+    }
+
+    function onProd2PresetChange() {
+        const val = document.getElementById('prodPreset2').value;
+        if (val !== 'custom') {
+            document.getElementById('prodWidth2').value = prodPresets[val].w;
+            document.getElementById('prodHeight2').value = prodPresets[val].h;
+        }
+        calculateSheet();
+    }
+
+    function onProd2CustomInput() {
+        document.getElementById('prodPreset2').value = 'custom';
+        calculateSheet();
+    }
+
+    function calculateSheet() {
+        const pw = parseFloat(document.getElementById('printWidth').value) || 0;
+        const ph = parseFloat(document.getElementById('printHeight').value) || 0;
+        const margin = parseFloat(document.getElementById('printMargin').value) || 0;
+
+        const hasBleed1 = document.getElementById('prod1BleedCheck').checked;
+        const bleed1 = hasBleed1 ? (parseFloat(document.getElementById('bleed1Val').value) || 0) * 2 : 0;
+
+        let w1 = (parseFloat(document.getElementById('prodWidth1').value) || 0) + bleed1;
+        let h1 = (parseFloat(document.getElementById('prodHeight1').value) || 0) + bleed1;
+        const circ1 = parseInt(document.getElementById('circulation1').value) || 0;
+
+        const useSecond = document.getElementById('enableSecondProduct').checked;
+        let w2 = parseFloat(document.getElementById('prodWidth2').value) || 0;
+        let h2 = parseFloat(document.getElementById('prodHeight2').value) || 0;
+        const circ2 = parseInt(document.getElementById('circulation2').value) || 0;
+
+        const usableW = pw - (margin * 2);
+        const usableH = ph - (margin * 2);
+
+        document.getElementById('resField').innerText = `${usableW > 0 ? usableW : 0} × ${usableH > 0 ? usableH : 0} мм`;
+
+        if (usableW <= 0 || usableH <= 0 || w1 <= 0 || h1 <= 0) return;
+
+        // Расчет для Изделия 1
+        const cols1_a = Math.floor(usableW / w1);
+        const rows1_a = Math.floor(usableH / h1);
+        const total1_a = cols1_a * rows1_a;
+
+        const cols1_b = Math.floor(usableW / h1);
+        const rows1_b = Math.floor(usableH / w1);
+        const total1_b = cols1_b * rows1_b;
+
+        let best1 = total1_a >= total1_b ? { count: total1_a, cols: cols1_a, rows: rows1_a, rotated: false, itemW: w1, itemH: h1 } 
+                                        : { count: total1_b, cols: cols1_b, rows: rows1_b, rotated: true, itemW: h1, itemH: w1 };
+
+        document.getElementById('resPerSheet1').innerText = `${best1.count} шт.`;
+        const sheets1 = circ1 > 0 ? Math.ceil(circ1 / best1.count) : 0;
+        document.getElementById('resSheets1').innerText = `${sheets1} шт. листов`;
+
+        let best2 = null;
+        let sheets2 = 0;
+        let totalCombinedSheets = sheets1;
+
+        if (useSecond && w2 > 0 && h2 > 0) {
+            const cols2_a = Math.floor(usableW / w2);
+            const rows2_a = Math.floor(usableH / h2);
+            const total2_a = cols2_a * rows2_a;
+
+            const cols2_b = Math.floor(usableW / h2);
+            const rows2_b = Math.floor(usableH / w2);
+            const total2_b = cols2_b * rows2_b;
+
+            best2 = total2_a >= total2_b ? { count: total2_a, cols: cols2_a, rows: rows2_a, rotated: false, itemW: w2, itemH: h2 }
+                                        : { count: total2_b, cols: cols2_b, rows: rows2_b, rotated: true, itemW: h2, itemH: w2 };
+
+            document.getElementById('resPerSheet2').innerText = `${best2.count} шт.`;
+            sheets2 = circ2 > 0 ? Math.ceil(circ2 / best2.count) : 0;
+            document.getElementById('resSheets2').innerText = `${sheets2} шт. листов`;
+            totalCombinedSheets = Math.max(sheets1, sheets2);
+        }
+
+        document.getElementById('resTotalSheets').innerText = `${totalCombinedSheets} шт.`;
+
+        // Отрисовка на Canvas
+        const canvas = document.getElementById('layoutCanvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        canvas.width = canvas.parentElement.clientWidth;
+        canvas.height = canvas.parentElement.clientHeight;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const padding = 15;
+        const scale = Math.min((canvas.width - padding * 2) / pw, (canvas.height - padding * 2) / ph);
+        const sW = pw * scale;
+        const sH = ph * scale;
+        const startX = (canvas.width - sW) / 2;
+        const startY = (canvas.height - sH) / 2;
+
+        ctx.fillStyle = "#ffffff";
+        ctx.shadowColor = "rgba(0,0,0,0.08)";
+        ctx.shadowBlur = 8;
+        ctx.fillRect(startX, startY, sW, sH);
+        ctx.shadowBlur = 0;
+        ctx.strokeStyle = "#cbd5e1";
+        ctx.strokeRect(startX, startY, sW, sH);
+
+        const mS = margin * scale;
+        ctx.strokeStyle = "#94a3b8";
+        ctx.setLineDash([3, 3]);
+        ctx.strokeRect(startX + mS, startY + mS, sW - mS * 2, sH - mS * 2);
+        ctx.setLineDash([]);
+
+        const uX = startX + mS;
+        const uY = startY + mS;
+        const usableWidthPix = sW - mS * 2;
+        const usableHeightPix = sH - mS * 2;
+
+        if (!best2) {
+            const i1W = best1.itemW * scale;
+            const i1H = best1.itemH * scale;
+            ctx.fillStyle = "rgba(79, 70, 229, 0.15)";
+            ctx.strokeStyle = "#4f46e5";
+            ctx.lineWidth = 1;
+            for (let r = 0; r < best1.rows; r++) {
+                for (let c = 0; c < best1.cols; c++) {
+                    const ix = uX + c * i1W;
+                    const iy = uY + r * i1H;
+                    ctx.fillRect(ix, iy, i1W, i1H);
+                    ctx.strokeRect(ix, iy, i1W, i1H);
+                }
+            }
+        } else {
+            const halfH = usableHeightPix / 2;
+            const i1W = best1.itemW * scale;
+            const i1H = best1.itemH * scale;
+            ctx.fillStyle = "rgba(79, 70, 229, 0.15)";
+            ctx.strokeStyle = "#4f46e5";
+            ctx.lineWidth = 1;
+            for (let r = 0; r < best1.rows; r++) {
+                for (let c = 0; c < best1.cols; c++) {
+                    const ix = uX + c * i1W;
+                    const iy = uY + r * i1H;
+                    if ((r * i1H + i1H) <= halfH) {
+                        ctx.fillRect(ix, iy, i1W, i1H);
+                        ctx.strokeRect(ix, iy, i1W, i1H);
+                    }
+                }
+            }
+
+            const i2W = best2.itemW * scale;
+            const i2H = best2.itemH * scale;
+            ctx.fillStyle = "rgba(16, 185, 129, 0.15)";
+            ctx.strokeStyle = "#10b981";
+            for (let r = 0; r < best2.rows; r++) {
+                for (let c = 0; c < best2.cols; c++) {
+                    const ix = uX + c * i2W;
+                    const iy = uY + halfH + 4 + r * i2H;
+                    if ((r * i2H + i2H) <= halfH) {
+                        ctx.fillRect(ix, iy, i2W, i2H);
+                        ctx.strokeRect(ix, iy, i2W, i2H);
+                    }
+                }
+            }
+        }
+    }
+
+    window.onload = calculateSheet;
+    window.onresize = calculateSheet;
+</script>
+
+</body>
+</html>
