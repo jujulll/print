@@ -161,8 +161,8 @@
         }
 
         // Стоимость термопереноса (например, 150 руб за 1 прижим)
-        const transferRate = 110.00;
-        if (qty > 24) {
+        let transferRate = 110.00;
+        if (qty > 19) {
             transferRate = 65.00;
         }
         const transferSum = useTransfer ? (pressQty * transferRate) : 0;
