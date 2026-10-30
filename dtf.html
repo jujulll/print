@@ -164,6 +164,7 @@
         const transferRate = 110.00;
         if (qty > 24) {
             transferRate = 65;
+        }
         const transferSum = useTransfer ? (pressQty * transferRate) : 0;
 
         const grandTotal = printSum + transferSum;
