@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор бумажных пакетов</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --sidebar-bg: #1e293b;
+            --sidebar-text: #94a3b8;
+            --sidebar-text-hover: #ffffff;
+            --sidebar-active: #4f46e5;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #cbd5e1;
+            --radius: 12px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); height: 100vh; display: flex; overflow: hidden; }
+        .app-layout { display: flex; width: 100vw; height: 100vh; }
+        .sidebar { width: 280px; background-color: var(--sidebar-bg); display: flex; flex-direction: column; border-right: 1px solid rgba(255,255,255,0.1); flex-shrink: 0; }
+        .sidebar-brand { padding: 22px 20px; font-size: 19px; font-weight: 700; color: #ffffff; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .sidebar-menu { display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; overflow-y: auto; flex-grow: 1; }
+        .tab-btn { background: transparent; border: none; text-align: left; padding: 12px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; color: var(--sidebar-text); cursor: pointer; text-decoration: none; transition: all 0.2s; }
+        .tab-btn:hover { background: rgba(255,255,255,0.05); color: var(--sidebar-text-hover); }
+        .tab-btn.active { background: var(--sidebar-active); color: white; font-weight: 600; }
+        
+        .main-content { flex-grow: 1; background-color: var(--bg-color); padding: 22px 26px; overflow-y: auto; display: flex; flex-direction: column; justify-content: space-between; max-width: 1250px; margin: 0 auto; width: 100%; }
+        .page-title { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .card { background: var(--card-bg); border-radius: var(--radius); border: 1px solid var(--border); padding: 18px 22px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+        
+        .section-title { font-size: 15px; font-weight: 600; color: var(--text-main); margin-bottom: 12px; }
+        label { display: block; font-size: 12px; font-weight: 500; color: var(--text-muted); margin-bottom: 5px; }
+        select, input { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; background: #fff; }
+        
+        .form-group { margin-bottom: 14px; }
+        .form-group:last-child { margin-bottom: 0; }
+        .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .hint { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+        .results-box { background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+        .result-item { display: flex; justify-content: space-between; font-size: 13px; }
+        .result-value { font-weight: 700; color: var(--primary); }
+
+        .badge-info { background: #eef2ff; color: var(--primary); padding: 8px 12px; border-radius: 8px; font-size: 13px; margin-bottom: 12px; line-height: 1.4; }
+    </style>
+</head>
+<body>
+
+<div class="app-layout">
+    <!-- Левое меню -->
+    <div class="sidebar">
+        <div class="sidebar-brand">Калькулятор типографии</div>
+        <div class="sidebar-menu">
+            <a href="index.html" class="tab-btn">1. Справочник форматов</a>
+            <a href="sheet.html" class="tab-btn">2. Вместимость листа</a>
+            <a href="meterage.html" class="tab-btn">3. Расчет метража</a>
+            <a href="postpress.html" class="tab-btn">4. Постпресс</a>
+            <a href="digital.html" class="tab-btn">5. Цифровая печать</a>
+            <a href="interior.html" class="tab-btn">6. Интерьерная печать</a>
+            <a href="wide.html" class="tab-btn">7. Широкоформатная печать</a>
+            <a href="uv.html" class="tab-btn">8. УФ-печать</a>
+            <a href="dtf.html" class="tab-btn">9. DTF-печать</a>
+            <a href="tampon_silk.html" class="tab-btn">10. Тампопечать и шелкография</a>
+            <a href="bags.html" class="tab-btn active">11. Бумажные пакеты</a>
+        </div>
+    </div>
+
+    <!-- Основной контент -->
+    <div class="main-content">
+        <div>
+            <div class="page-title">Калькулятор бумажных пакетов (по каталогу штампов)</div>
+            <div class="hint" style="margin-bottom: 16px;">Выберите готовую вырубную форму, укажите тираж и параметры печати/постпресса.</div>
+            
+            <div class="grid-2">
+                <div class="card" style="display: flex; flex-direction: column; gap: 14px;">
+                    <div class="section-title">Выбор формы и тиража</div>
+                    
+                    <div class="form-group">
+                        <label>Вырубной штамп (форма)</label>
+                        <select id="bagForm" onchange="onFormChange()">
+                            <option value="ПК-1">ПК-1 (Пакет 200×260×80 мм)</option>
+                            <option value="ПК-2">ПК-2 (Пакет 300×400×120 мм - половинка)</option>
+                            <option value="ПК-4">ПК-4 (Пакет 400×300×120 мм)</option>
+                            <option value="ПК-5">ПК-5 (Пакет 150×230×55 мм)</option>
+                            <option value="ПК-6">ПК-6 (Пакет 400×320×230 мм)</option>
+                            <option value="ПК-7">ПК-7 (Пакет 120×200×80 мм)</option>
+                            <option value="ПК-8">ПК-8 (Пакет 310×200×110 мм)</option>
+                            <option value="ПК-9">ПК-9 (Пакет 120×370×120 мм)</option>
+                            <option value="ПК-10">ПК-10 (Пакет 350×250×100 мм)</option>
+                            <option value="ПК-14">ПК-14 (Пакет 240×320×90 мм)</option>
+                        </select>
+                    </div>
+
+                    <div id="formInfoBadge" class="badge-info"></div>
+
+                    <div class="form-group">
+                        <label>Тираж (шт.)</label>
+                        <input type="number" id="bagQty" value="100" min="50" step="50" oninput="calcBags()">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Способ печати</label>
+                        <select id="bagPrintType" onchange="calcBags()">
+                            <option value="offset">Офсетная печать</option>
+                            <option value="digital">Цифровая печать</option>
+                            <option value="silk">Шелкография</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Красочность</label>
+                        <select id="bagColors" onchange="calcBags()">
+                            <option value="40">4+0 (Односторонняя цветная)</option>
+                            <option value="44">4+4 (Двусторонняя цветная)</option>
+                            <option value="10">1+0 (Черно-белая / 1 цвет)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Ламинация развертки</label>
+                        <select id="bagLam" onchange="calcBags()">
+                            <option value="none">Без ламинации</option>
+                            <option value="gloss_32">Глянцевая 32 мкм</option>
+                            <option value="mat_32" selected>Матовая 32 мкм</option>
+                            <option value="touch">Touch-Cover (софт-тач)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="section-title">Калькуляция стоимости пакетов</div>
+                    <div class="results-box">
+                        <div class="result-item"><span>Выбранный штамп:</span><span id="resFormName" class="result-value">-</span></div>
+                        <div class="result-item"><span>Размер развертки:</span><span id="resSpreadSize" class="result-value">-</span></div>
+                        <div class="result-item"><span>Печать и бумага:</span><span id="resPrintSum" class="result-value">0.00 ₽</span></div>
+                        <div class="result-item"><span>Ламинация:</span><span id="resLamSum" class="result-value">0.00 ₽</span></div>
+                        <div class="result-item"><span>Вырубка (штамп):</span><span id="resDieCutSum" class="result-value">0.00 ₽</span></div>
+                        <div class="result-item"><span>Склейка, люверсы, шнуры:</span><span id="resAssemblySum" class="result-value">0.00 ₽</span></div>
+                        <div class="result-item" style="border-top: 1px solid var(--border); padding-top: 10px; font-size: 15px;">
+                            <span>Цена за 1 готовый пакет:</span><span id="resPerItemSum" class="result-value" style="font-size: 16px;">0.00 ₽</span>
+                        </div>
+                        <div class="result-item" style="border-top: 1px solid var(--border); padding-top: 10px; font-size: 16px;">
+                            <span>Итого за тираж:</span><span id="resTotalSum" class="result-value" style="font-size: 18px;">0.00 ₽</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div></div>
+    </div>
+</div>
+
+<script>
+    // База вырубных форм на основе вашего каталога Апрош
+    const bagFormsData = {
+        'ПК-1': { name: 'ПК-1 (Пакет 200×260×80 мм)', ready: '200×260×80 мм', spread: '580×340 мм', minSheet: '600×360 мм' },
+        'ПК-2': { name: 'ПК-2 (Пакет 300×400×120 мм - половинка)', ready: '300×400×120 мм', spread: '445×510 мм', minSheet: '465×530 мм' },
+        'ПК-4': { name: 'ПК-4 (Пакет 400×300×120 мм)', ready: '400×300×120 мм', spread: '540×420 мм', minSheet: '560×440 мм' },
+        'ПК-5': { name: 'ПК-5 (Пакет 150×230×55 мм)', ready: '150×230×55 мм', spread: '430×297.5 мм', minSheet: '450×317.5 мм' },
+        'ПК-6': { name: 'ПК-6 (Пакет 400×320×230 мм)', ready: '400×320×230 мм', spread: '650×495 мм', minSheet: '670×515 мм' },
+        'ПК-7': { name: 'ПК-7 (Пакет 120×200×80 мм)', ready: '120×200×80 мм', spread: '420×290 мм', minSheet: '440×310 мм' },
+        'ПК-8': { name: 'ПК-8 (Пакет 310×200×110 мм)', ready: '310×200×110 мм', spread: '440×300 мм', minSheet: '460×320 мм' },
+        'ПК-9': { name: 'ПК-9 (Пакет 120×370×120 мм)', ready: '120×370×120 мм', spread: '500×490 мм', minSheet: '520×510 мм' },
+        'ПК-10': { name: 'ПК-10 (Пакет 350×250×100 мм)', ready: '350×250×100 мм', spread: '470×350 мм', minSheet: '490×370 мм' },
+        'ПК-14': { name: 'ПК-14 (Пакет 240×320×90 мм)', ready: '240×320×90 мм', spread: '680×415 мм', minSheet: '700×435 мм' }
+    };
+
+    function onFormChange() {
+        const key = document.getElementById('bagForm').value;
+        const form = bagFormsData[key];
+        if (form) {
+            document.getElementById('formInfoBadge').innerHTML = `
+                <strong>Выбранный штамп:</strong> ${form.name}<br>
+                <strong>Размер в готовом виде:</strong> ${form.ready} | <strong>Развертка (ножи):</strong> ${form.spread}<br>
+                <strong>Мин. размер листа с вылетами:</strong> ${form.minSheet}
+            `;
+        }
+        calcBags();
+    }
+
+    function calcBags() {
+        const key = document.getElementById('bagForm').value;
+        const form = bagFormsData[key];
+        const qty = parseInt(document.getElementById('bagQty').value) || 100;
+        const printType = document.getElementById('bagPrintType').value;
+        const colors = document.getElementById('bagColors').value;
+        const lam = document.getElementById('bagLam').value;
+
+        document.getElementById('resFormName').innerText = form.name;
+        document.getElementById('resSpreadSize').innerText = form.spread;
+
+        // Базовые расчеты стоимости пакета в зависимости от тиража и площади
+        let basePrintCost = (printType === 'offset') ? 35 : (printType === 'digital') ? 65 : 50;
+        if (colors === '44') basePrintCost *= 1.6;
+        
+        const printSum = basePrintCost * qty;
+
+        // Ламинация развертки
+        let lamRate = 0;
+        if (lam === 'gloss_32' || lam === 'mat_32') lamRate = 22;
+        if (lam === 'touch') lamRate = 45;
+        const lamSum = lamRate * qty;
+
+        // Вырубка по существующему штампу (приладка + удары)
+        const dieCutSum = 1800 + (qty * 4.5);
+
+        // Склейка, установка люверсов, укрепление и шнуры
+        const assemblyRate = 35; // сборка + склейка + люверсы + шнур
+        const assemblySum = assemblyRate * qty;
+
+        const totalSum = printSum + lamSum + dieCutSum + assemblySum;
+        const perItem = qty > 0 ? totalSum / qty : 0;
+
+        document.getElementById('resPrintSum').innerText = printSum.toFixed(2) + ' ₽';
+        document.getElementById('resLamSum').innerText = lamSum.toFixed(2) + ' ₽';
+        document.getElementById('resDieCutSum').innerText = dieCutSum.toFixed(2) + ' ₽';
+        document.getElementById('resAssemblySum').innerText = assemblySum.toFixed(2) + ' ₽';
+        document.getElementById('resPerItemSum').innerText = perItem.toFixed(2) + ' ₽ / шт';
+        document.getElementById('resTotalSum').innerText = totalSum.toFixed(2) + ' ₽';
+    }
+
+    window.onload = onFormChange;
+</script>
+
+</body>
+</html>
